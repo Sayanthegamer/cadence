@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/cadence-banner.png" alt="Cadence — Structured AI Workflow for Scientific Engineering" width="100%">
+</p>
+
 # Cadence ⚡
 
 **High-Velocity Spec, TDD & Empirical Validation Engine for Modern AI Coding Agents**
