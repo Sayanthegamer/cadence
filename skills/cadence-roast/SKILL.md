@@ -2,13 +2,18 @@
 name: cadence-roast
 description: >-
   Convene the 4-agent Idea Roast Council (The Believer, The Skeptic, The Investor, The Judge)
-  to stress-test any product, feature, or architectural idea before wasting time building it.
-  Saves a persistent ruling artifact with clear verdict (BUILD, FIX FIRST, KILL).
+  when the user is planning a commercial product, startup, paid tool, SaaS, or monetized feature.
+  Do NOT use for fun experiments, hobby projects, or scientific exploration.
 ---
 
-# Cadence Roast: The 4-Agent Idea Council
+# Cadence Roast: The 4-Agent Idea Council (Commercial & Startup Evaluation)
 
-Ten minutes, not six months. Before writing code, convene the four-agent council to ruthlessly test your idea through four locked, adversarial lenses:
+Ten minutes, not six months. Before spending months building something intended to make money, convene the four-agent council to ruthlessly test its commercial viability, willingness to pay, and fatal risks.
+
+> [!IMPORTANT]
+> **Intent Filter:**
+> - **USE FOR:** Commercial ventures, startups, SaaS, paid developer tools, client products, or monetization-driven features.
+> - **DO NOT USE FOR:** Fun experiments, weekend hackathons, learning prototypes, open-source toys, or scientific research. When building for curiosity or fun, proceed directly to `cadence-ideate` or `cadence-flow`.
 
 ```text
  ┌─────────────────┐       ┌─────────────────┐       ┌─────────────────┐
