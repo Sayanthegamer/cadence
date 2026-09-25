@@ -37,6 +37,11 @@ Use this skill when you finish implementing a feature, complete a task, or prepa
    - Capture pass/fail count, execution duration, and any regressions.
 2. **Execute Static Analysis & Types:**
    - Run project linters and typecheckers (`ruff check`, `mypy`, `npm run lint`, `tsc --noEmit`).
+3. **Oracle Certification Verification (Accelerated / Numerical Backends):**
+   - If the diff touches accelerated kernels (CUDA, Vulkan, Metal, ROCm, WebGPU), compute shaders, or numerical cores:
+     - Verify that a valid passing certificate exists in `.experiments/certificates/<canonical_tree_sha>.json`.
+     - Execute `Verify-Canonical-Staged-Tree` to assert that the staged content tree matches `certificate.canonical_tree_sha` using the certificate's recorded exclusion pathspecs.
+     - If the certificate is missing or hash mismatch occurs, mark review as **`BLOCKED_PENDING_CERTIFICATION`** and require `/cad-oracle` to be executed.
 
 ### Step 3: Hygiene & Security Audit
 1. **Pre-Commit Hygiene Check:**
@@ -59,6 +64,7 @@ Present findings using the Principal Engineer Review format:
 - [x] **Pre-Commit Hygiene:** [Pass - Zero debug prints / Fail]
 - [x] **Static Analysis / Lint:** [Pass / Fail]
 - [x] **Test Execution:** [All Passed (X tests, 0 failures, 1.4s)]
+- [x] **Oracle Certification:** [Pass - Certified Tree 8c7864... / N/A]
 - [x] **ADR Alignment:** [Complies with ADR-001]
 
 ## Findings & Suggestions

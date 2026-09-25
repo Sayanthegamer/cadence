@@ -1,0 +1,149 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://cadence.dev/schemas/validation-certificate-v1.json",
+  "title": "Cadence Oracle Validation Certificate",
+  "description": "Cryptographically and deterministically bound validation attestation certifying candidate numerical and accelerated backend correctness.",
+  "type": "object",
+  "required": [
+    "certificate_id",
+    "timestamp",
+    "tree_spec_version",
+    "canonical_tree_sha",
+    "inclusion_rules",
+    "exclusion_pathspecs",
+    "contract_file",
+    "contract_sha256",
+    "target_backend",
+    "reference_backend",
+    "track_a_differential",
+    "track_b_domain_invariants",
+    "verdict"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "format": "uri"
+    },
+    "certificate_id": {
+      "type": "string",
+      "description": "Unique identifier for the certificate, matching filename <canonical_tree_sha>.json."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 UTC timestamp when certification was executed."
+    },
+    "tree_spec_version": {
+      "type": "string",
+      "enum": ["v1"],
+      "description": "Version of the Canonical Certified Content Tree extraction specification."
+    },
+    "canonical_tree_sha": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{40}$",
+      "description": "Git tree SHA of the candidate state, excluding certificate and trace pathspecs."
+    },
+    "inclusion_rules": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Inclusion path rules (e.g. ['TRACKED_AND_UNIGNORED_WORKING_TREE'])."
+    },
+    "exclusion_pathspecs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Pathspecs explicitly masked out to prevent certificate self-inclusion or trace noise."
+    },
+    "contract_file": {
+      "type": "string",
+      "description": "Relative path to declarative validation contract (e.g. contracts/solver.yaml)."
+    },
+    "contract_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "SHA-256 hash of the validation contract file."
+    },
+    "target_backend": {
+      "type": "object",
+      "required": ["backend", "precision"],
+      "properties": {
+        "backend": { "type": "string" },
+        "device_name": { "type": ["string", "null"] },
+        "precision": { "type": "string" }
+      }
+    },
+    "reference_backend": {
+      "type": "object",
+      "required": ["backend", "precision"],
+      "properties": {
+        "backend": { "type": "string" },
+        "device_name": { "type": ["string", "null"] },
+        "precision": { "type": "string" }
+      }
+    },
+    "track_a_differential": {
+      "type": "object",
+      "required": ["status", "evaluated_seeds", "max_abs_error", "max_rel_error", "l_inf_norm", "tolerances"],
+      "properties": {
+        "status": { "type": "string", "enum": ["PASSED", "FAILED", "SKIPPED"] },
+        "evaluated_seeds": { "type": "array", "items": { "type": "integer" } },
+        "max_abs_error": { "type": "number", "minimum": 0 },
+        "max_rel_error": { "type": "number", "minimum": 0 },
+        "l_inf_norm": { "type": "number", "minimum": 0 },
+        "tolerances": {
+          "type": "object",
+          "required": ["atol", "rtol"],
+          "properties": {
+            "atol": { "type": "number", "minimum": 0 },
+            "rtol": { "type": "number", "minimum": 0 },
+            "l_inf_max": { "type": ["number", "null"] }
+          }
+        }
+      }
+    },
+    "track_b_domain_invariants": {
+      "type": "object",
+      "required": ["status", "energy_monotonicity", "momentum_conservation", "symmetry_equivariance", "nan_inf_free"],
+      "properties": {
+        "status": { "type": "string", "enum": ["PASSED", "FAILED", "SKIPPED"] },
+        "energy_monotonicity": {
+          "type": "object",
+          "required": ["verdict", "mode"],
+          "properties": {
+            "verdict": { "type": "string", "enum": ["PASSED", "FAILED", "NA"] },
+            "mode": { "type": "string", "enum": ["CONSERVED", "MONOTONIC_DISSIPATIVE", "UNCONSTRAINED"] },
+            "max_violation": { "type": ["number", "null"] }
+          }
+        },
+        "momentum_conservation": {
+          "type": "object",
+          "required": ["verdict"],
+          "properties": {
+            "verdict": { "type": "string", "enum": ["PASSED", "FAILED", "NA"] },
+            "max_delta": { "type": ["number", "null"] }
+          }
+        },
+        "symmetry_equivariance": {
+          "type": "object",
+          "required": ["verdict"],
+          "properties": {
+            "verdict": { "type": "string", "enum": ["PASSED", "FAILED", "NA"] }
+          }
+        },
+        "nan_inf_free": {
+          "type": "object",
+          "required": ["verdict", "nan_count", "inf_count"],
+          "properties": {
+            "verdict": { "type": "string", "enum": ["PASSED", "FAILED"] },
+            "nan_count": { "type": "integer", "minimum": 0 },
+            "inf_count": { "type": "integer", "minimum": 0 }
+          }
+        }
+      }
+    },
+    "verdict": {
+      "type": "string",
+      "enum": ["PASSED", "FAILED"],
+      "description": "Overall certification verdict."
+    }
+  }
+}

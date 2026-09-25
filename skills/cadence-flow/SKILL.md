@@ -39,8 +39,11 @@ Use this skill when implementing a concrete coding task, fixing a bug, or adding
 1. Write the leanest implementation in production code that satisfies the test assertion.
 2. **Re-run the exact test command.**
 3. Verify the test now passes cleanly with exit code 0.
+4. **Anti-Loosening Tolerance Gate (Vector 3 Invariant):**
+   - If candidate outputs exhibit floating-point discrepancies or fail contract checks during implementation, the agent is **strictly prohibited from loosening tolerances autonomously** (`atol`, `rtol`, $L_\infty$, or invariant bounds in `contracts/*.yaml` or test assertions) to force a failing test green.
+   - Any relaxation of numerical tolerances is an automatic **Tier 1 Foundational Decision**. The agent must halt autonomous execution, compile an Evidence Dossier showing error distributions across seeds, and present an interactive decision gate (`ask_question`) to the human engineer.
 
-### Step 4: Refactor, Sanitize & Pre-Flight Check
+### Step 4: Refactor, Sanitize & Oracle Certification Lock
 1. **Sanitize (Zero Debug Residue):**
    - Strip any temporary `print()`, `console.log()`, `debugger;`, or temporary comment blocks added during debugging.
    - Remove any temporary scratch scripts or files created during the run.
@@ -51,13 +54,23 @@ Use this skill when implementing a concrete coding task, fixing a bug, or adding
    - Run the broader test suite for the modified module:
      - `pytest tests/test_<module>.py` or `npm test`
    - Ensure all tests remain green.
+4. **The Oracle Completion Lock (`BLOCKED_PENDING_CERTIFICATION`):**
+   - If the task touched an accelerated kernel (CUDA, Vulkan, Metal, ROCm, WebGPU), compute shader, custom C/C++ extension, or numerical core:
+     - The task status immediately enters **`BLOCKED_PENDING_CERTIFICATION`**.
+     - The code change **CANNOT be committed** and the task **CANNOT be marked complete `[x]`** until `cadence-oracle` (`/cad-oracle`) executes, passes all differential and invariant gates, and generates a valid certificate in `.experiments/certificates/<tree_sha>.json`.
 
 ### Step 5: Atomic Commit & Learning Capture
-1. **Pre-Flight Inspection:**
-   - Inspect `git status` and `git diff` to confirm that *only* intended files are modified and working tree is pristine.
-2. **Atomic Commit:**
-   - Propose or generate a clean conventional commit:
-     - Example: `fix(auth): handle expired token refresh without session termination`
-     - Example: `feat(metrics): add cosine similarity computation to signal pipeline`
+1. **Pre-Flight Inspection & Tree Verification:**
+   - Inspect `git status` and `git diff` to confirm that *only* intended files are modified.
+   - If accelerated/numerical code was modified, run `Verify-Canonical-Staged-Tree` against the staged index to ensure the staged canonical tree strictly matches `certificate.canonical_tree_sha` using the certificate's recorded exclusion pathspecs.
+2. **Atomic Commit with Attestation Trailers:**
+   - Generate a clean conventional commit.
+   - If an oracle certificate was issued, append trailers:
+     ```text
+     feat(solver): implement high-stiffness conjugate gradient kernel
+
+     Certified-Tree: 8c78649a93a5afff375eaaac07049b56cb5081c4
+     Validation-Certificate: .experiments/certificates/8c78649a93a5afff375eaaac07049b56cb5081c4.json
+     ```
 3. **Continuous Learning Gate:**
    - If a tricky bug or non-obvious framework quirk was resolved (e.g. tensor contiguous constraint, specific mock requirement), propose recording the 1-line rule into [`AGENTS.md`](file:///d:/exp/AGENTS.md) so the agent never repeats the mistake in future sessions.
