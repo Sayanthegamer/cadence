@@ -29,12 +29,12 @@ Create an artifact in the session artifact directory (`brain/<conversation-id>/`
   1. **Objective & Scope:** What is being built and what is explicitly excluded.
   2. **Architecture / Flow Diagram:** Use GitHub-flavored Mermaid (`flowchart TD` or `sequenceDiagram`).
   3. **TDD Contracts (Red Phase Strategy):** Which test files and test cases will be created.
-  4. **Task Breakdown:** Granular, sequenced checklist:
+  4. **Task Breakdown:** Granular, sequenced checklist tagged with effort/construction indicators (🟢 Low effort, 🟡 Moderate/time-taking, 🔴 Severe fix/high risk, 🏗️ Heavy refactor, 📐 Schema/contract, 🧰 Tooling):
      ```markdown
-     - [ ] Task 1: Contract & Red Tests (`tests/test_x.py`)
-     - [ ] Task 2: Core Domain Logic (`src/x.py`)
-     - [ ] Task 3: API / Interface Integration (`src/api.py`)
-     - [ ] Task 4: Lint, Coverage, & Regression Run
+     - [ ] 📐 Task 1: Contract & Red Tests (`tests/test_x.py`) 🟢
+     - [ ] 🔨 Task 2: Core Domain Logic (`src/x.py`) 🟡
+     - [ ] 🏗️ Task 3: API & Architecture Integration (`src/api.py`) 🟡
+     - [ ] 🧰 Task 4: Lint, Typecheck, & Full Regression Run 🟢
      ```
   5. **Subagent Allocation (if parallel):** Designate tasks suited for isolated `self` subagents.
 

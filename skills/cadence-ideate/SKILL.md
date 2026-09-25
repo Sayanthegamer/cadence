@@ -32,18 +32,24 @@ Use this skill when exploring new ideas, designing a system from scratch, or whe
 Propose 2–3 distinct approaches to solve the problem. For each approach, provide:
 * **The Name:** Clear, intuitive label.
 * **Plain English (ELI5):** A 1-sentence analogy or simple explanation.
-* **Complexity Level:** ⭐ (Beginner/Fast) | ⭐⭐ (Moderate) | ⭐⭐⭐ (Advanced/Heavy).
+* **Effort & Risk Indicator:** Use construction & traffic-light emojis instead of stars (stars mistakenly imply quality instead of effort):
+  - 🟢 **Low Effort / Quick Win:** Fast to build, minimal moving parts, low risk.
+  - 🟡 **Time-Consuming / Tricky:** Requires careful debugging, state management, or extra wiring.
+  - 🔴 **Severe Fix / High Risk:** Deep surgery, potential data loss or breaking changes.
+  - 🏗️ **Heavy Refactor / Overhaul:** Major architectural foundation work.
+  - 📐 **Blueprint / Contract:** Interface or schema design.
+  - 🚜 **Demolition / Cleanup:** Ripping out legacy code or pruning bloat.
 * **Pros & Cons:** What is great about it vs. what to watch out for.
 * **The Clear Recommendation:** Always mark the most pragmatic option with **(Recommended)** and explain *why* it is the best default (e.g. simplest to debug, zero extra servers, least code).
 
 #### Example Trade-Off Format:
-> **Option 1: (Recommended) Local SQLite File** ⭐
-> * **In Plain English:** Your app saves everything to a single local file on your computer, like saving a spreadsheet.
+> **Option 1: (Recommended) Local SQLite File** 🟢 *(Low Effort / Quick Win)*
+> * **In Plain English:** Your app saves everything to a single normal file on your computer, like saving an Excel spreadsheet.
 > * **Why pick it:** Zero setup, completely free, instant, and impossible to break with external network failures.
 > * **When you outgrow it:** If you have 50 different servers writing to the same database simultaneously.
 >
-> **Option 2: Cloud Postgres Database** ⭐⭐⭐
-> * **In Plain English:** A separate database server running in the cloud that your app talks to over the internet.
+> **Option 2: Cloud Postgres Database** 🟡 🏗️ *(Time-Consuming & Heavy Infrastructure)*
+> * **In Plain English:** A separate database computer living in the cloud that your app talks to over the internet.
 > * **Why pick it:** Handles huge scale, multiple servers, and heavy concurrent writes.
 > * **Why skip it for now:** Requires credentials, connection pooling, cloud hosting costs, and network debugging.
 
