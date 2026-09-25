@@ -1,0 +1,110 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://cadence.dev/schemas/benchmark-report-v1.json",
+  "title": "Cadence Benchmark Report",
+  "description": "Machine-readable schema for Adaptive Two-Tier Benchmark results, statistical confidence intervals, and capacity envelopes.",
+  "type": "object",
+  "required": [
+    "benchmark_id",
+    "timestamp",
+    "tier",
+    "environment",
+    "governing_metric"
+  ],
+  "properties": {
+    "$schema": { "type": "string", "format": "uri" },
+    "benchmark_id": { "type": "string" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "tier": { "type": "string", "enum": ["FAST_TIER", "DEEP_TIER"] },
+    "environment": {
+      "type": "object",
+      "required": ["os", "cpu_cores", "ram_gb"],
+      "properties": {
+        "os": { "type": "string" },
+        "cpu_cores": { "type": "integer" },
+        "ram_gb": { "type": "number" },
+        "gpu_model": { "type": ["string", "null"] },
+        "gpu_vram_gb": { "type": ["number", "null"] },
+        "compiler_flags": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "governing_metric": {
+      "type": "string",
+      "enum": ["min", "median", "p95", "p99", "throughput"]
+    },
+    "fast_tier_result": {
+      "type": "object",
+      "properties": {
+        "status": { "type": "string", "enum": ["NO_GROSS_CHANGE_DETECTED", "GROSS_CHANGE_DETECTED"] },
+        "workload_nominal": { "type": "number" },
+        "baseline_min_ms": { "type": "number" },
+        "candidate_min_ms": { "type": "number" },
+        "delta_percent": { "type": "number" },
+        "recommendation": { "type": "string" },
+        "disclaimer": { "type": "string" }
+      }
+    },
+    "deep_tier_result": {
+      "type": "object",
+      "properties": {
+        "verdict": {
+          "type": "string",
+          "enum": ["ACTIONABLE_OPTIMIZATION", "PRACTICALLY_EQUIVALENT", "ACTIONABLE_REGRESSION", "INCONCLUSIVE"]
+        },
+        "inconclusive_reason": {
+          "type": ["string", "null"],
+          "enum": ["EXCESSIVE_CI_WIDTH", "BOUNDARY_STRADDLE", null]
+        },
+        "maes_threshold": { "type": "number" },
+        "confidence_interval_95": {
+          "type": "object",
+          "properties": {
+            "lower": { "type": "number" },
+            "upper": { "type": "number" },
+            "width": { "type": "number" },
+            "rciw_percent": { "type": "number" }
+          }
+        },
+        "warmup": {
+          "type": "object",
+          "properties": {
+            "stationarity_heuristic": { "type": "string", "enum": ["CONVERGED", "FAILED"] },
+            "drift_ratio": { "type": "number" },
+            "fallback_applied": { "type": "boolean" },
+            "bootstrap_block_size": { "type": "integer" }
+          }
+        },
+        "workload_sweep": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "workload_n": { "type": "number" },
+              "metrics": {
+                "type": "object",
+                "properties": {
+                  "min_ms": { "type": "number" },
+                  "median_ms": { "type": "number" },
+                  "p95_ms": { "type": "number" },
+                  "p99_ms": { "type": "number" },
+                  "iqr_ms": { "type": "number" }
+                }
+              }
+            }
+          }
+        },
+        "capacity_envelope": {
+          "type": "object",
+          "properties": {
+            "max_supported_n": { "type": ["number", "null"] },
+            "limit_outcome": {
+              "type": ["string", "null"],
+              "enum": ["CAPACITY_LIMIT_TIMEOUT", "CAPACITY_LIMIT_OOM", "CAPACITY_LIMIT_DEVICE_LOST", "CAPACITY_LIMIT_WORKER_CRASH", null]
+            },
+            "failure_details": { "type": ["string", "null"] }
+          }
+        }
+      }
+    }
+  }
+}
