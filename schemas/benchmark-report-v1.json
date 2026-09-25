@@ -30,7 +30,7 @@
     },
     "governing_metric": {
       "type": "string",
-      "enum": ["min", "median", "p95", "p99", "throughput"]
+      "enum": ["min", "median", "p95", "p99", "iqr", "throughput"]
     },
     "fast_tier_result": {
       "type": "object",
