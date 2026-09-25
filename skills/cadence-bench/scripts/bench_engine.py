@@ -127,17 +127,26 @@ def run_fast_tier(
     budget_exceeded = wall_clock_sec > time_budget_sec
 
     if base_min <= 0.0:
-        delta_percent = 0.0
+        relative_change = 0.0
     else:
-        delta_percent = ((cand_min - base_min) / base_min) * 100.0
+        relative_change = (cand_min - base_min) / base_min
 
-    # Exact threshold boundary: strict inequality > 25.0%
-    is_gross_change = abs(delta_percent) > threshold_percent
+    delta_percent = relative_change * 100.0
+
+    if relative_change > 0.0:
+        direction = "REGRESSION"
+    elif relative_change < 0.0:
+        direction = "SPEEDUP"
+    else:
+        direction = "NEUTRAL"
+
+    # Exact threshold boundary per authorized Decision: strict inequality > 0.25 (25.0%)
+    is_gross_change = abs(relative_change) > (threshold_percent / 100.0)
     status = "GROSS_CHANGE_DETECTED" if is_gross_change else "NO_GROSS_CHANGE_DETECTED"
 
     disclaimer = (
         "⚠️ [FAST-TIER NOTICE] Measures local execution under current nominal workload; "
-        "does NOT validate asymptotic scaling."
+        "does NOT validate asymptotic scaling or certify optimization, regression, or equivalence."
     )
 
     deep_result = None
@@ -153,9 +162,11 @@ def run_fast_tier(
     return {
         "tier": "FAST_TIER",
         "status": status,
+        "direction": direction,
         "nominal_n": nominal_n,
         "baseline_min_ms": round(base_min, 4),
         "candidate_min_ms": round(cand_min, 4),
+        "relative_change": round(relative_change, 6),
         "delta_percent": round(delta_percent, 4),
         "absolute_delta_percent": round(abs(delta_percent), 4),
         "is_gross_change": is_gross_change,
@@ -240,16 +251,16 @@ def compute_moving_block_bootstrap(
     ci_upper = boot_deltas[upper_idx]
     ci_width = ci_upper - ci_lower
 
-    # Deterministic policy for near-zero delta:
-    epsilon_delta = max(1e-9, 0.05 * maes)
     abs_delta = abs(delta_observed)
 
-    if abs_delta < epsilon_delta:
-        is_near_zero_delta = True
-        rciw = ci_width / max(1e-9, maes)
-    else:
-        is_near_zero_delta = False
+    # Authorized Decision A1: Deep Tier Adaptive Precision
+    if abs_delta > maes:
         rciw = ci_width / abs_delta
+        is_near_zero_delta = False
+    else:
+        # Near-zero: abs(delta) <= MAES
+        rciw = (ci_width / 2.0) / maes
+        is_near_zero_delta = True
 
     return {
         "metric": metric,

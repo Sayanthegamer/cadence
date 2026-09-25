@@ -32,21 +32,19 @@ Cadence Bench implements **Adaptive Two-Tier Benchmarking**, executed authoritat
 - **Execution Context:** Invoked during continuous `/cad-flow` TDD loops via `python scripts/bench_engine.py fast`.
 - **Execution Budget:** Strict wall-clock cutoff $\le 3.0$ seconds on nominal workload ($N_{\text{nominal}}$). If execution exceeds $3.0\text{s}$, a budget overrun warning is recorded.
 - **Measurement Method:** Evaluates rapid iterations of nominal workload, recording minimum timing and distribution.
-- **Detection Predicate & Boundary Rule:**
-  $$\Delta_{\%} = \frac{T_{\min, \text{cand}} - T_{\min, \text{base}}}{T_{\min, \text{base}}} \times 100\%$$
-  - Gross change is detected if absolute magnitude exceeds $25.0\%$:
-    $$|\Delta_{\%}| > 25.0\%$$
+- **Authorized Detection Semantics:**
+  $$\text{relative\_change} = \frac{T_{\min, \text{cand}} - T_{\min, \text{base}}}{T_{\min, \text{base}}}, \quad \text{gross\_change} = |\text{relative\_change}| > 0.25$$
   - **Exact Boundary Semantics:**
-    - $|\Delta_{\%}| \le 25.000\% \implies$ **`NO_GROSS_CHANGE_DETECTED`**
-    - $|\Delta_{\%}| > 25.000\% \implies$ **`GROSS_CHANGE_DETECTED`**
-- **Directional Tracking:** Records both signed $\Delta_{\%}$ (identifying whether the shift is a regression $> +25\%$ or large speedup $< -25\%$) and absolute magnitude $|\Delta_{\%}|$.
+    - $|\text{relative\_change}| \le 0.25000 \implies$ **`NO_GROSS_CHANGE_DETECTED`**
+    - $|\text{relative\_change}| > 0.25000 \implies$ **`GROSS_CHANGE_DETECTED`**
+- **Directional Reporting:** Direction is reported separately (`REGRESSION`, `SPEEDUP`, or `NEUTRAL`) rather than conflated with the magnitude threshold.
+- **Rule of Non-Equivalence & Non-Certification:** The Fast Tier outcome is *never* represented as equivalent to the Deep Tier's statistical conclusions. Fast Tier does not certify optimization, regression, equivalence, or asymptotic scaling.
 - **Deep Tier Invocation Policy:**
   - By default, Fast Tier alerts the engineer and recommends running Deep Tier: `Recommendation: Run /cad-bench --deep to statistically profile this gross change.`
   - If `--auto-deep` is explicitly passed, the command automatically triggers the Deep Tier evaluation pipeline.
-- **Rule of Non-Equivalence:** The Fast Tier outcome is *never* represented as equivalent to the Deep Tier's statistical conclusions.
 - **Mandatory Disclaimer:** Fast Tier outputs always include:
   ```text
-  ⚠️ [FAST-TIER NOTICE] Measures local execution under current nominal workload; does NOT validate asymptotic scaling.
+  ⚠️ [FAST-TIER NOTICE] Measures local execution under current nominal workload; does NOT validate asymptotic scaling or certify optimization, regression, or equivalence.
   ```
 
 ---
@@ -58,26 +56,24 @@ Invoked via `/cad-bench --deep` or milestone gates.
 ### 3.1 Workload Sweeps & Metric Pluralism
 - **Workload Sweep:** Evaluates across contract-declared parameter sweeps ($N_1, \dots, N_m$), not arbitrary scales.
 - **Supported Governing Metrics:** `min`, `median`, `p95`, `p99`, `iqr`.
+- **Quantile Estimator Convention:** All quantiles ($P_{95}, P_{99}, Q_1, Q_3$) and $\text{IQR} = Q_3 - Q_1$ are computed strictly using **Hyndman & Fan (1996) Type 7** continuous linear interpolation ($k = (n - 1) \times p, \gamma = k - \lfloor k \rfloor$), matching NumPy's default (`method='linear'`), SciPy, and R Type 7.
 - **Governing Metric Control:** The benchmark contract declares which metric gates the outcome. The statistical bootstrap resamples and computes deltas on the **declared governing metric**.
 - **No Silent Substitution:** Rejects undeclared or invalid metrics with explicit validation errors. Median is never substituted silently for tail metrics (`p95`, `p99`).
 
-### 3.2 Moving-Block Bootstrap & Correct RCIW Semantics
+### 3.2 Moving-Block Bootstrap & Adaptive Precision Formulation
 To account for short-range serial autocorrelation, thread scheduling jitter, and GPU thermal drift:
 - Resamples blocks of size $B = \max(3, \lfloor \sqrt[3]{K} \rfloor)$ consecutive runs to generate the **95% Confidence Interval of Difference**:
-  $$\Delta_{\text{metric}} = M_{\text{candidate}} - M_{\text{baseline}} \implies \text{CI} = [\text{CI}_{\text{lower}}, \text{CI}_{\text{upper}}]$$
-- **Relative Confidence Interval Width (RCIW):**
-  $$\text{RCIW} = \frac{\text{CI}_{\text{upper}} - \text{CI}_{\text{lower}}}{|\Delta_{\text{metric}}|}$$
-- **Near-Zero Delta Deterministic Policy:**
-  When $|\Delta_{\text{metric}}| < \epsilon_{\text{delta}}$ (where $\epsilon_{\text{delta}} = \max(10^{-9}, 0.05 \times \text{MAES})$), the delta denominator approaches zero. In this regime, the relative width is normalized against the actionable diameter:
-  $$\text{RCIW}_{\text{MAES}} = \frac{\text{CI}_{\text{upper}} - \text{CI}_{\text{lower}}}{\text{MAES}}$$
-  and telemetry flags `is_near_zero_delta: true`.
-
-### 3.3 Adaptive Sampling Across $K_{\min}..K_{\max}$
-- Evaluates $K$ starting at $K_{\min}$ (e.g. 10) up to $K_{\max}$ (e.g. 30).
-- At each step $K$, computes the moving-block bootstrap CI and evaluates RCIW.
-- **Stopping Criteria:**
-  - If $\text{RCIW} \le \text{RCIW}_{\text{target}}$: terminates early with `stopping_reason: "TARGET_RCIW_MET"`.
-  - Else if $K == K_{\max}$: terminates with `stopping_reason: "K_MAX_REACHED"`.
+  $$\Delta_{\text{metric}} = M_{\text{candidate}} - M_{\text{baseline}} \implies \text{CI} = [\text{CI}_{\text{lower}}, \text{CI}_{\text{upper}}], \quad \text{CI}_{\text{width}} = \text{CI}_{\text{upper}} - \text{CI}_{\text{lower}}$$
+- **Authorized Adaptive Precision Criteria (Decision A1):**
+  - **Normal Precision Criterion ($|\Delta| > \text{MAES}$):**
+    $$\text{RCIW} = \frac{\text{CI}_{\text{width}}}{|\Delta_{\text{metric}}|}$$
+  - **Near-Zero Precision Criterion ($|\Delta| \le \text{MAES}$):**
+    $$\text{RCIW}_{\text{MAES}} = \frac{\text{CI}_{\text{width}} / 2}{\text{MAES}}$$
+- **Adaptive Stopping Rule:**
+  Stop sampling when the applicable precision criterion satisfies $\text{Criterion} \le \text{RCIW}_{\text{target}}$ (e.g. 10%), subject to $K_{\min} \le K \le K_{\max}$ (and execution budget $10\text{s} \le T \le 45\text{s}$).
+  - When target precision is met: terminates with `stopping_reason: "TARGET_RCIW_MET"`.
+  - When budget or $K_{\max}$ is exhausted: terminates with `stopping_reason: "BUDGET_OR_K_MAX_EXHAUSTED"`.
+- **Final Verdict Invariant:** Final verdict always uses the canonical 5-step MAES precedence ladder. No tolerance or MAES relaxation is permitted autonomously.
   - Else: continues sampling next iteration ($K \leftarrow K + 1$).
 
 ### 3.4 The 5-Step Mutually Exclusive Precedence Ladder vs. MAES
