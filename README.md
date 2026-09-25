@@ -42,6 +42,7 @@ Cadence equips your agent with a pre-configured team of specialized subagents:
 
 ## 📦 Bundled Skills
 
+* **`cadence-ideate`:** Creative sparring partner for idea capture, ELI5 trade-offs, and visual architecture concepts.
 * **`cadence-flow`:** Rapid TDD execution cycle (Target $\to$ Red $\to$ Green $\to$ Refactor $\to$ Commit).
 * **`cadence-orchestrate`:** Multi-agent concurrent execution with model tiering and workspace isolation.
 * **`cadence-plan`:** Native UI Artifact architecture and feature specification with zero Git clutter.
@@ -51,6 +52,8 @@ Cadence equips your agent with a pre-configured team of specialized subagents:
 
 ## 🚀 Quick Usage
 
+* **To brainstorm and capture a new idea (even if you're unsure how to build it):**
+  > "Use cadence-ideate to help me brainstorm a real-time event notifier"
 * **To start a TDD cycle for a feature or fix:**
   > "Use cadence-flow to fix [bug] with a failing test first"
 * **To unleash the multi-agent team on a complex problem:**
