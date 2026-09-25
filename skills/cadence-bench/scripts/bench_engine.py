@@ -179,6 +179,46 @@ def run_fast_tier(
     }
 
 
+def generate_fast_tier_report(
+    fast_result: Dict[str, Any],
+    benchmark_id: str = "fast_benchmark",
+    environment: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
+    """
+    Wrap Fast Tier gross-change detection result into a schema-compliant benchmark report.
+    """
+    env = environment or {
+        "os": sys.platform,
+        "cpu_cores": os.cpu_count() or 4,
+        "ram_gb": 16.0,
+        "gpu_model": None,
+        "gpu_vram_gb": None,
+        "compiler_flags": ["-O3"],
+    }
+    return {
+        "$schema": "https://cadence.dev/schemas/benchmark-report-v1.json",
+        "benchmark_id": benchmark_id,
+        "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+        "tier": "FAST_TIER",
+        "environment": env,
+        "governing_metric": "min",
+        "fast_tier_result": {
+            "status": fast_result["status"],
+            "direction": fast_result["direction"],
+            "workload_nominal": float(fast_result.get("nominal_n") or fast_result.get("workload_nominal", 1000)),
+            "baseline_min_ms": float(fast_result["baseline_min_ms"]),
+            "candidate_min_ms": float(fast_result["candidate_min_ms"]),
+            "relative_change": float(fast_result["relative_change"]),
+            "delta_percent": float(fast_result["delta_percent"]),
+            "wall_clock_sec": float(fast_result["wall_clock_sec"]),
+            "time_budget_sec": float(fast_result["time_budget_sec"]),
+            "budget_exceeded": bool(fast_result["budget_exceeded"]),
+            "recommendation": str(fast_result["recommendation"]),
+            "disclaimer": str(fast_result["disclaimer"]),
+        },
+    }
+
+
 # ==============================================================================
 # 2. Moving-Block Bootstrap & Correct RCIW Semantics
 # ==============================================================================
@@ -895,17 +935,20 @@ def main() -> int:
 
     # Fast Tier Parser
     fast_p = subparsers.add_parser("fast", help="Run Fast Tier gross-change detection")
-    fast_p.add_argument("--base-min", type=float, required=True, help="Baseline minimum timing in ms")
-    fast_p.add_argument("--cand-min", type=float, required=True, help="Candidate minimum timing in ms")
+    fast_p.add_argument("--base-min", type=float, default=None, help="Baseline minimum timing in ms")
+    fast_p.add_argument("--cand-min", type=float, default=None, help="Candidate minimum timing in ms")
     fast_p.add_argument("--nominal-n", type=int, default=1000, help="Nominal workload size N")
     fast_p.add_argument("--threshold", type=float, default=25.0, help="Gross change threshold percent")
     fast_p.add_argument("--budget", type=float, default=3.0, help="Wall-clock execution budget in seconds")
     fast_p.add_argument("--auto-deep", action="store_true", help="Automatically trigger Deep Tier on gross change")
+    fast_p.add_argument("--demo", action="store_true", help="Run real compute workload timing demonstration")
 
     # Deep Tier Parser
     deep_p = subparsers.add_parser("deep", help="Run Deep Tier statistical profiling")
     deep_p.add_argument("--metric", type=str, default="median", choices=sorted(list(ALLOWED_METRICS)))
     deep_p.add_argument("--maes", type=float, default=5.0, help="Minimum Actionable Effect Size")
+    deep_p.add_argument("--min-budget", type=float, default=None, help="Adaptive minimum execution budget in seconds")
+    deep_p.add_argument("--max-budget", type=float, default=None, help="Adaptive maximum execution budget in seconds")
     deep_p.add_argument("--ci-lower", type=float, help="Direct CI lower for outcome testing")
     deep_p.add_argument("--ci-upper", type=float, help="Direct CI upper for outcome testing")
     deep_p.add_argument("--demo-e2e", action="store_true", help="Run full end-to-end fixture")
@@ -913,27 +956,55 @@ def main() -> int:
     args = parser.parse_args()
 
     if args.subcommand == "fast":
-        res = run_fast_tier(
-            baseline_samples_or_fn=[args.base_min],
-            candidate_samples_or_fn=[args.cand_min],
-            nominal_n=args.nominal_n,
-            time_budget_sec=args.budget,
-            threshold_percent=args.threshold,
-            auto_deep=args.auto_deep,
-        )
-        print(json.dumps(res, indent=2))
+        if args.demo:
+            # Real numerical workload timing demonstration
+            def demo_baseline(n):
+                t_sub = time.perf_counter()
+                _ = sum(i * 0.0001 for i in range(int(n) * 30))
+                elapsed_ms = (time.perf_counter() - t_sub) * 1000.0
+                return [elapsed_ms]
+
+            def demo_candidate(n):
+                t_sub = time.perf_counter()
+                _ = sum(i * 0.00005 for i in range(int(n) * 20))
+                elapsed_ms = (time.perf_counter() - t_sub) * 1000.0
+                return [elapsed_ms]
+
+            res = run_fast_tier(
+                baseline_samples_or_fn=demo_baseline,
+                candidate_samples_or_fn=demo_candidate,
+                nominal_n=args.nominal_n,
+                time_budget_sec=args.budget,
+                threshold_percent=args.threshold,
+                auto_deep=args.auto_deep,
+            )
+        else:
+            base_m = args.base_min if args.base_min is not None else 10.0
+            cand_m = args.cand_min if args.cand_min is not None else 8.0
+            res = run_fast_tier(
+                baseline_samples_or_fn=[base_m],
+                candidate_samples_or_fn=[cand_m],
+                nominal_n=args.nominal_n,
+                time_budget_sec=args.budget,
+                threshold_percent=args.threshold,
+                auto_deep=args.auto_deep,
+            )
+        rep = generate_fast_tier_report(res, benchmark_id="fast_benchmark_cli")
+        print(json.dumps(rep, indent=2))
         return 0
 
     if args.subcommand == "deep":
         if args.demo_e2e:
             import random
+            min_b = args.min_budget if args.min_budget is not None else 0.1
+            max_b = args.max_budget if args.max_budget is not None else 5.0
             rep = run_deep_tier_benchmark(
                 baseline_fn=lambda: 10.0 + random.gauss(0, 0.2),
                 candidate_fn=lambda: 4.0 + random.gauss(0, 0.2),
                 governing_metric=args.metric,
                 maes=args.maes,
-                min_budget_sec=0.1,  # fast demo budget for CLI check
-                max_budget_sec=5.0,
+                min_budget_sec=min_b,
+                max_budget_sec=max_b,
             )
             print(json.dumps(rep, indent=2))
             return 0

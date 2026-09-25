@@ -36,10 +36,15 @@
       "type": "object",
       "properties": {
         "status": { "type": "string", "enum": ["NO_GROSS_CHANGE_DETECTED", "GROSS_CHANGE_DETECTED"] },
+        "direction": { "type": "string", "enum": ["REGRESSION", "SPEEDUP", "NEUTRAL"] },
         "workload_nominal": { "type": "number" },
         "baseline_min_ms": { "type": "number" },
         "candidate_min_ms": { "type": "number" },
+        "relative_change": { "type": "number" },
         "delta_percent": { "type": "number" },
+        "wall_clock_sec": { "type": "number" },
+        "time_budget_sec": { "type": "number" },
+        "budget_exceeded": { "type": "boolean" },
         "recommendation": { "type": "string" },
         "disclaimer": { "type": "string" }
       }
@@ -72,6 +77,20 @@
             "drift_ratio": { "type": "number" },
             "fallback_applied": { "type": "boolean" },
             "bootstrap_block_size": { "type": "integer" }
+          }
+        },
+        "adaptive_sampling": {
+          "type": "object",
+          "properties": {
+            "k_final": { "type": "integer" },
+            "k_min": { "type": "integer" },
+            "k_max": { "type": "integer" },
+            "stopping_reason": { "type": "string" },
+            "wall_clock_sec": { "type": "number" },
+            "budget_bounds_sec": {
+              "type": "array",
+              "items": { "type": "number" }
+            }
           }
         },
         "workload_sweep": {
