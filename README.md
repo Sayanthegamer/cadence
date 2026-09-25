@@ -46,6 +46,10 @@ Cadence equips your agent with a pre-configured team of specialized subagents:
 
 ## 📦 Bundled Skills
 
+* **`cadence-debug`:** Scientific root-cause debugging without panic-coding (Minimal Repro $\to$ Hypotheses $\to$ Probes $\to$ Surgical Cure).
+* **`cadence-bench`:** Performance profiler & regression guard (Latency, Throughput, and Memory/VRAM delta before vs. after).
+* **`cadence-clean`:** Safe tech-debt and dead-code janitor with automated pre-and-post test suite verification.
+* **`cadence-tour`:** Interactive codebase architecture map and onboarding tour ("Read These 3 Files First").
 * **`cadence-status`:** Instant project & session status check (replaces `conductor-status` with zero disk bloat).
 * **`cadence-review`:** Principal Engineer audit, test verification, and clean PR/commit packaging (replaces `conductor-review`).
 * **`cadence-decide`:** "Why This, Not That" Architectural Decision Record (ADR) engine that preserves engineering rationale, impresses interviewers, and aligns future agents.
@@ -73,6 +77,14 @@ Cadence equips your agent with a pre-configured team of specialized subagents:
 
 ## 🚀 Quick Usage
 
+* **To debug a tricky, non-obvious bug scientifically:**
+  > "Use cadence-debug to find the root cause of this tensor mismatch"
+* **To profile performance, latency, and memory before vs. after:**
+  > "Use cadence-bench to benchmark the forward pass optimization"
+* **To safely clean dead code, unused imports, and formatting rot:**
+  > "Use cadence-clean to prune tech-debt safely"
+* **To explore or onboard to an unfamiliar codebase:**
+  > "Use cadence-tour to give me a high-level architecture tour of this repo"
 * **Where did we leave off? (Session Status):**
   > "Use cadence-status" or "Where did we leave off?"
 * **Review & ship completed work:**
