@@ -1,0 +1,171 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://cadence.dev/schemas/experiment-v1.json",
+  "title": "Cadence Scientific Experiment Metadata",
+  "description": "Machine-readable schema for archived scientific, graphics, and physics experiments and failures.",
+  "type": "object",
+  "required": [
+    "experiment_id",
+    "timestamp",
+    "commit_base",
+    "reproduction",
+    "classification",
+    "environment",
+    "parameters",
+    "measurements",
+    "tracked_core",
+    "hypothesis"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "format": "uri"
+    },
+    "experiment_id": {
+      "type": "string",
+      "description": "Unique slug for the experiment in YYYY-MM-DD_slug format.",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}_[a-z0-9_-]+$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 UTC timestamp when the experiment was archived."
+    },
+    "commit_base": {
+      "type": "string",
+      "description": "Git commit SHA from which this experiment diverged or was executed."
+    },
+    "git_ref": {
+      "type": ["string", "null"],
+      "description": "Git branch or ref name if selective branching was used (e.g. experiments/YYYY-MM-DD_slug), or null if diff-only."
+    },
+    "reproduction": {
+      "type": "object",
+      "required": ["command", "seed"],
+      "properties": {
+        "command": {
+          "type": "string",
+          "description": "Exact command-line invocation required to reproduce the experiment."
+        },
+        "seed": {
+          "type": ["integer", "null"],
+          "description": "Deterministic PRNG seed used for the experiment."
+        },
+        "input_data": {
+          "type": ["string", "null"],
+          "description": "Path or identifier of input dataset, mesh, or test case."
+        }
+      }
+    },
+    "classification": {
+      "type": "object",
+      "required": ["category", "failure_mode", "primary_subsystem"],
+      "properties": {
+        "category": {
+          "type": "string",
+          "enum": ["SCIENTIFIC_FAILURE", "NUMERICAL_REGRESSION", "PERFORMANCE_LIMIT", "ARCHITECTURAL_EXPLORATION", "VALIDATED_BASELINE"],
+          "description": "High-level classification of the experiment."
+        },
+        "failure_mode": {
+          "type": "string",
+          "description": "Specific failure mode (e.g. NUMERICAL_DIVERGENCE, LOSS_OF_CONSERVATION, MEMORY_OOM, DEVICE_LOST, DRIFT_INSTABILITY)."
+        },
+        "primary_subsystem": {
+          "type": "string",
+          "description": "Primary module or subsystem under test (e.g. constraint_solver, rasterizer, integrator)."
+        }
+      }
+    },
+    "environment": {
+      "type": "object",
+      "required": ["backend", "precision"],
+      "properties": {
+        "backend": {
+          "type": "string",
+          "description": "Compute backend (e.g. CUDA, Vulkan, Metal, ROCm, CPU, OpenCL)."
+        },
+        "device_name": {
+          "type": ["string", "null"],
+          "description": "Hardware device or GPU model string."
+        },
+        "driver_version": {
+          "type": ["string", "null"],
+          "description": "Hardware driver version."
+        },
+        "precision": {
+          "type": "string",
+          "description": "Floating-point precision (e.g. FP64, FP32, FP16, BFLOAT16, MIXED)."
+        },
+        "compiler_flags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Compiler or JIT flags used during execution."
+        }
+      }
+    },
+    "parameters": {
+      "type": "object",
+      "description": "Key-value dictionary of physical, algorithmic, or tuning parameters (e.g. dt, stiffness, iterations).",
+      "additionalProperties": true
+    },
+    "measurements": {
+      "type": "object",
+      "description": "Observed diagnostic measurements, residuals, failure timestamps, or loss of conservation metrics.",
+      "additionalProperties": true
+    },
+    "tracked_core": {
+      "type": "object",
+      "required": ["parameters_file", "autopsy_file", "patch_file"],
+      "properties": {
+        "parameters_file": {
+          "type": "string",
+          "description": "Relative path to tracked parameters.yaml."
+        },
+        "autopsy_file": {
+          "type": "string",
+          "description": "Relative path to tracked autopsy.md."
+        },
+        "patch_file": {
+          "type": "string",
+          "description": "Relative path to tracked patch.diff."
+        }
+      }
+    },
+    "untracked_artifacts": {
+      "type": "array",
+      "description": "List of large untracked trace artifacts anchored via Content-Addressed Storage (CAS) SHA-256.",
+      "items": {
+        "type": "object",
+        "required": ["artifact_id", "relative_path", "sha256", "byte_size"],
+        "properties": {
+          "artifact_id": {
+            "type": "string",
+            "description": "Logical identifier for the artifact (e.g. trace:residuals:csv)."
+          },
+          "relative_path": {
+            "type": "string",
+            "description": "Relative path from repository root (e.g. .experiments/traces/2026-09-26_residuals.csv)."
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "description": "Hex-encoded SHA-256 digest of artifact contents."
+          },
+          "byte_size": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Exact file size in bytes."
+          },
+          "mime_type": {
+            "type": ["string", "null"],
+            "description": "MIME type (e.g. text/csv, application/octet-stream)."
+          }
+        }
+      }
+    },
+    "hypothesis": {
+      "type": "string",
+      "description": "Concise scientific hypothesis explaining why the approach failed or what was observed."
+    }
+  }
+}
