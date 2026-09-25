@@ -1,6 +1,18 @@
 # Cadence Operational Directives: High-Velocity TDD & Spec Execution
 
-## 1. The Red-Green-Refactor Invariant
+## 1. Autonomous Operational Reflexes (Zero-Command Automation)
+The user should NEVER be required to manually type slash commands (e.g. `/cad-decide`, `/cad-flow`, `/cad-debug`) for standard workflows. The agent must trigger these behaviors autonomously as innate reflexes:
+
+1. **Autonomous ADR Logging:** Whenever an architectural crossroad, library selection, or database/pattern decision is agreed upon in conversation, **automatically write and save the ADR in `.agents/decisions/`** and inform the user in one line. Do not wait for `/cad-decide`.
+2. **Autonomous TDD Reflex:** Every request to implement a feature or fix a bug must automatically follow the strict Red-Green-Refactor invariant. Do not wait for `/cad-flow`.
+3. **Autonomous Scientific Debugging:** When encountering a test failure, runtime crash, or subtle defect, automatically execute the 5-step scientific autopsy (repro script $\to$ hypotheses $\to$ assertion probes $\to$ root cause $\to$ cure). Never panic-edit production code. Do not wait for `/cad-debug`.
+4. **Autonomous Stack Fingerprinting:** On the first interaction in any project, automatically inspect manifests (`pyproject.toml`, `package.json`, `Cargo.toml`, etc.) to detect test runners and linters. Never ask the user how to run tests.
+5. **Autonomous Pre-Commit Hygiene:** Before declaring any code change complete, automatically sweep the diff for `print()`, `console.log()`, `debugger;`, or temporary scratch files, run the project formatter (`ruff format`, `prettier`), and verify full regression tests.
+6. **Autonomous Session Standup:** When starting a fresh session or when the user asks "what's next?" or "where did we leave off?", automatically inspect `git status`, recent commits, and active plan artifacts to deliver the 3-bullet standup briefing.
+
+---
+
+## 2. The Red-Green-Refactor Invariant
 Every functional code change must follow the strict three-phase cadence:
 
 1. **RED (Proof of Need):**
@@ -21,14 +33,14 @@ Every functional code change must follow the strict three-phase cadence:
 
 ---
 
-## 2. Zero-Pollution Context Discipline & ADRs
+## 3. Zero-Pollution Context Discipline & ADRs
 - **No Git Clutter:** Do NOT create ephemeral planning markdown files, tracks folders, or metadata JSON files in the user's source repository. Use Antigravity UI Artifacts (`brain/<conversation-id>`) for multi-step execution plans and architecture diagrams.
-- **Architectural Decision Records ("Why This, Not That"):** When major design choices are made, persist them cleanly in `.agents/decisions/` (using `cadence-decide`). Agents must read and respect accepted ADRs in subsequent sessions and never re-propose rejected alternatives unless a documented revisit condition is triggered.
+- **Respect Past Decisions:** Read `.agents/decisions/` during reconnaissance. Agents must respect accepted ADRs and never re-propose rejected alternatives unless an explicit revisit condition is triggered.
 - **Continuous Learning Loop:** When non-obvious framework quirks or project gotchas are resolved, extract the 1-line rule and append it to [`AGENTS.md`](file:///d:/exp/AGENTS.md) or `.agents/rules/` so the mistake is never repeated.
 
 ---
 
-## 3. High-Leverage Subagent Orchestration
+## 4. High-Leverage Subagent Orchestration
 To protect context window capacity, prevent cognitive bias, and maximize throughput:
 - **`cadence-scout` / `research`:** Delegate codebase reconnaissance, stack fingerprinting, and dependency mapping to scout subagents. Launch them concurrently in parallel for multi-area surveys.
 - **`cadence-tester`:** Delegate the Red phase and test harness creation. Ensure empirical proof of failure before code edits.
