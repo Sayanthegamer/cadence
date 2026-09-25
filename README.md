@@ -75,31 +75,35 @@ Cadence equips your agent with a pre-configured team of specialized subagents:
 
 ---
 
-## 🚀 Quick Usage
+## ⚡ Direct Slash Commands
 
-* **To debug a tricky, non-obvious bug scientifically:**
-  > "Use cadence-debug to find the root cause of this tensor mismatch"
-* **To profile performance, latency, and memory before vs. after:**
-  > "Use cadence-bench to benchmark the forward pass optimization"
-* **To safely clean dead code, unused imports, and formatting rot:**
-  > "Use cadence-clean to prune tech-debt safely"
-* **To explore or onboard to an unfamiliar codebase:**
-  > "Use cadence-tour to give me a high-level architecture tour of this repo"
-* **Where did we leave off? (Session Status):**
-  > "Use cadence-status" or "Where did we leave off?"
-* **Review & ship completed work:**
-  > "Use cadence-review to audit my changes and prep a PR"
-* **To record a critical architecture choice ("Why This, Not That"):**
-  > "Use cadence-decide to record our decision to use local SQLite instead of Postgres"
-* **To stress-test an idea before building it (The Idea Roast Council):**
-  > "Use cadence-roast to roast my idea: an AI tool that generates test suites from commit messages"
-* **To brainstorm and capture a new idea (even if you're unsure how to build it):**
-  > "Use cadence-ideate to help me brainstorm a real-time event notifier"
-* **To start a TDD cycle for a feature or fix:**
-  > "Use cadence-flow to fix [bug] with a failing test first"
-* **To unleash the multi-agent team on a complex problem:**
-  > "Use cadence-orchestrate to investigate and solve [feature]"
-* **To design a large architecture cleanly:**
-  > "Use cadence-plan to design [feature]"
-* **To roll back an unviable experiment:**
-  > "Use cadence-revert to reset this attempt"
+Cadence registers 11 native slash commands directly into your prompt autocomplete:
+
+| Slash Command | What It Triggers |
+|---|---|
+| **/cad-status** | Instant standup & session overview ("Where did we leave off?") |
+| **/cad-debug** | Scientific root-cause autopsy (repro $\to$ hypotheses $\to$ probes $\to$ cure) |
+| **/cad-flow** | High-velocity TDD cycle (Red $\to$ Green $\to$ Sanitize $\to$ Commit) |
+| **/cad-review** | Principal Engineer diff audit, test verification, & PR packaging |
+| **/cad-bench** | Micro-benchmark latency, throughput, & memory before vs. after |
+| **/cad-clean** | Safe dead-code purge & tech-debt cleanup with auto-rollback |
+| **/cad-tour** | Interactive architecture map & "Read These 3 Files First" tour |
+| **/cad-decide** | Record "Why This, Not That" ADR in `.agents/decisions/` |
+| **/cad-roast** | Convene the 4-agent Idea Roast Council for startups/commercial ideas |
+| **/cad-plan** | Create interactive UI Plan Artifact with zero Git clutter |
+| **/cad-revert** | Safe emergency reset of failed experiments back to clean Git |
+
+---
+
+## 🚀 Natural Language Triggers
+
+You can also trigger any workflow conversationally:
+* *"Where did we leave off?"* $\to$ runs `/cad-status`
+* *"Debug this tensor shape crash"* $\to$ runs `/cad-debug`
+* *"Implement this feature with TDD"* $\to$ runs `/cad-flow`
+* *"Audit my changes and prep a PR"* $\to$ runs `/cad-review`
+* *"Benchmark this loop"* $\to$ runs `/cad-bench`
+* *"Clean up dead code safely"* $\to$ runs `/cad-clean`
+* *"Give me a tour of this codebase"* $\to$ runs `/cad-tour`
+* *"Record why we chose SQLite"* $\to$ runs `/cad-decide`
+* *"Roast my startup idea"* $\to$ runs `/cad-roast`
