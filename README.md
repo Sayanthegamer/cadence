@@ -6,7 +6,7 @@
 
 **High-Velocity Spec, TDD & Empirical Validation Engine for Modern AI Coding Agents**
 
-> *"The Red $\to$ Green $\to$ Refactor discipline you love from Conductor, evolved into a dual-engine architecture for high-velocity software engineering and rigorous scientific/numerical computing."*
+> *"The Red to Green to Refactor discipline you love from Conductor, evolved into a dual-engine architecture for high-velocity software engineering and rigorous scientific/numerical computing."*
 
 [![Antigravity](https://img.shields.io/badge/Antigravity-2.0-blue.svg)](https://antigravity.google)
 [![Architecture](https://img.shields.io/badge/Architecture-Autonomous_Reflexes-teal.svg)](#-autonomous-operational-reflexes-zero-command-automation)
