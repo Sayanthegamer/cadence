@@ -44,7 +44,7 @@ Cadence is packaged as a standard agent plugin. Choose the installation method f
 Install directly from GitHub via the Antigravity CLI:
 
 ```bash
-agy plugins install https://github.com/gemini-cli-extensions/cadence
+agy plugins install https://github.com/Sayanthegamer/cadence
 ```
 
 #### B. Developer Installation (Live-Sync Global Link)
@@ -52,7 +52,7 @@ If you want to contribute, modify rules, or develop custom skills, clone the rep
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/gemini-cli-extensions/cadence.git
+   git clone https://github.com/Sayanthegamer/cadence.git
    cd cadence
    ```
 
@@ -83,7 +83,7 @@ ln -sfn /path/to/cadence .agents/plugins/cadence
 Register the marketplace repository and install Cadence directly in your active Claude Code session:
 
 ```bash
-/plugin marketplace add gemini-cli-extensions/cadence
+/plugin marketplace add Sayanthegamer/cadence
 /plugin install cadence
 ```
 
@@ -98,7 +98,7 @@ To safely remove Cadence:
   * Global Link: Remove directory or symlink `~/.gemini/config/plugins/cadence`
   * Workspace Link: Remove `.agents/plugins/cadence`
 * **Claude Code:**
-  * Run `/plugin remove cadence` and `/plugin marketplace remove gemini-cli-extensions/cadence`
+  * Run `/plugin remove cadence` and `/plugin marketplace remove Sayanthegamer/cadence`
 
 ---
 
