@@ -1,9 +1,20 @@
 # Cadence Operational Directives: High-Velocity TDD & Spec Execution
 
 ## 1. Autonomous Operational Reflexes (Zero-Command Automation)
-The user should NEVER be required to manually type slash commands (e.g. `/cad-decide`, `/cad-flow`, `/cad-debug`) for standard workflows. The agent must trigger these behaviors autonomously as innate reflexes:
-
-1. **Autonomous ADR Logging:** Whenever an architectural crossroad, library selection, or database/pattern decision is agreed upon in conversation, **automatically write and save the ADR in `.agents/decisions/`** and inform the user in one line. Do not wait for `/cad-decide`.
+1. **Two-Tier Architectural Governance (The Material Impact Boundary):**
+   Architectural choices, library selections, data layouts, and mathematical/physical algorithms are governed strictly by material impact, never by nominal categorization or surface appearance:
+   - **Tier 1 (Foundational / Consequential — Human-Gated):** A decision is strictly classified as Tier 1 whenever it can materially affect any of the **8 Material Impact Vectors**:
+     1. *Numerical Results or Physical Correctness* (floating-point arithmetic, integration schemes, convergence rates, stability limits, boundary conditions, conservation laws).
+     2. *Reproducibility or Determinism* (seed control, PRNG state, reduction order, parallel synchronization, hardware-dependent fast-math re-association).
+     3. *Precision or Error Tolerances* (transitions between `fp64`/`fp32`/`fp16`/`bfloat16`, epsilon thresholds, tolerance budgets `rtol`/`atol`).
+     4. *Performance Characteristics or Scaling Behavior* (asymptotic complexity shifts, vectorization, cache blocking, memory bandwidth saturation).
+     5. *Memory Layout or Data Movement* (storage representations AoS vs SoA, contiguous vs strided memory, host-to-device transfers, cache hierarchies).
+     6. *Concurrency, Synchronization, or Execution Model* (task vs data parallelism, warp/threadgroup sync, atomics, lock-free queues, asynchronous streams).
+     7. *Public or Module Interfaces* (core API contracts, data container schemas, abstraction boundaries, coordinate systems).
+     8. *Algorithmic, Mathematical, Rendering, or External Dependency Choices* (solvers, mathematical formulations, rendering paradigms, new libraries/frameworks).
+     *Protocol:* The agent must investigate $\ge 2$ viable alternatives, compile a balanced **Evidence Dossier** with **zero `(Recommended)` labels**, **zero default checkmarks**, and **no premature `Accepted` ADRs**, and present the decision via an interactive gate (`ask_question`). Only upon explicit human authorization is the ADR written to `.agents/decisions/`.
+   - **Tier 2 (Tactical / Localized — Autonomous Execution):** A choice proceeds autonomously *only* when it is localized, immediately reversible with minimal blast radius, and has **zero material impact** across all 8 vectors. The agent logs an observable 1-line trace entry: `- [Tactical Decision] <description> (Reversible, zero impact on 8 vectors)`.
+   - **The Uncertainty Invariant:** *Ambiguity is an automatic Tier 1 trigger.* If the agent cannot prove with absolute confidence that a decision has zero material impact across all 8 vectors, it is strictly forbidden from assuming it is tactical. It must treat the decision as Tier 1, halt autonomous execution, compile an Evidence Dossier, and ask the human engineer. Never bypass the human gate under uncertainty.
 2. **Autonomous TDD Reflex:** Every request to implement a feature or fix a bug must automatically follow the strict Red-Green-Refactor invariant. Do not wait for `/cad-flow`.
 3. **Autonomous Scientific Debugging:** When encountering a test failure, runtime crash, or subtle defect, automatically execute the 5-step scientific autopsy (repro script $\to$ hypotheses $\to$ assertion probes $\to$ root cause $\to$ cure). Never panic-edit production code. Do not wait for `/cad-debug`.
 4. **Autonomous Stack Fingerprinting:** On the first interaction in any project, automatically inspect manifests (`pyproject.toml`, `package.json`, `Cargo.toml`, etc.) to detect test runners and linters. Never ask the user how to run tests.
@@ -37,6 +48,7 @@ Every functional code change must follow the strict three-phase cadence:
 ## 3. Zero-Pollution Context Discipline & ADRs
 - **No Git Clutter:** Do NOT create ephemeral planning markdown files, tracks folders, or metadata JSON files in the user's source repository. Use Antigravity UI Artifacts (`brain/<conversation-id>`) for multi-step execution plans and architecture diagrams.
 - **Respect Past Decisions:** Read `.agents/decisions/` during reconnaissance. Agents must respect accepted ADRs and never re-propose rejected alternatives unless an explicit revisit condition is triggered.
+- **Two-Tier ADR Discipline:** Never write or commit an `Accepted` ADR for a Tier 1 decision autonomously. Always compile a balanced Evidence Dossier, present options to the human engineer via `ask_question`, and formalize the ADR only after explicit human sign-off.
 - **Continuous Learning Loop:** When non-obvious framework quirks or project gotchas are resolved, extract the 1-line rule and append it to [`AGENTS.md`](file:///d:/exp/AGENTS.md) or `.agents/rules/` so the mistake is never repeated.
 
 ---
