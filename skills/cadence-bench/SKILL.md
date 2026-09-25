@@ -69,10 +69,10 @@ To account for short-range serial autocorrelation, thread scheduling jitter, and
     $$\text{RCIW} = \frac{\text{CI}_{\text{width}}}{|\Delta_{\text{metric}}|}$$
   - **Near-Zero Precision Criterion ($|\Delta| \le \text{MAES}$):**
     $$\text{RCIW}_{\text{MAES}} = \frac{\text{CI}_{\text{width}} / 2}{\text{MAES}}$$
-- **Adaptive Stopping Rule:**
-  Stop sampling when the applicable precision criterion satisfies $\text{Criterion} \le \text{RCIW}_{\text{target}}$ (e.g. 10%), subject to $K_{\min} \le K \le K_{\max}$ (and execution budget $10\text{s} \le T \le 45\text{s}$).
-  - When target precision is met: terminates with `stopping_reason: "TARGET_RCIW_MET"`.
-  - When budget or $K_{\max}$ is exhausted: terminates with `stopping_reason: "BUDGET_OR_K_MAX_EXHAUSTED"`.
+- **Adaptive Stopping Rule (Decisions T1 & T2):**
+  Stop sampling when the applicable precision criterion satisfies $\text{Criterion} \le \text{RCIW}_{\text{target}}$ (e.g. 10%), subject to the authorized timing contract and sample count bounds:
+  - **Decision T1 (Minimum Observation Window Gate):** Early exit on target precision is **strictly gated** by $t_{\text{elapsed}} \ge T_{\min}$ (where $T_{\min} = 10.0\text{s}$ nominal in production, configurable in rapid fixtures) and $K \ge K_{\min}$. Sampling continues until $T_{\min}$ has elapsed to observe multi-second thermal throttling and thread scheduling variance. Terminates with `stopping_reason: "TARGET_RCIW_MET"`.
+  - **Decision T2 (Adaptive Budget Ceiling & Bounded Overshoot):** Evaluated at iteration boundaries. If $t_{\text{elapsed}} \ge T_{\max}$ ($T_{\max} = 45.0\text{s}$ nominal, configurable in fixtures) or $K == K_{\max}$, sampling terminates immediately with `stopping_reason: "BUDGET_OR_K_MAX_EXHAUSTED"`. Wall clock may exceed $T_{\max}$ by at most one single-sample execution duration ($\le \Delta t_{\text{sample}}$); this is an adaptive envelope with bounded single-sample overshoot, never an exact hard microsecond cutoff.
 - **Final Verdict Invariant:** Final verdict always uses the canonical 5-step MAES precedence ladder. No tolerance or MAES relaxation is permitted autonomously.
   - Else: continues sampling next iteration ($K \leftarrow K + 1$).
 

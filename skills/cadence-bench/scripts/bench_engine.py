@@ -802,6 +802,13 @@ def run_deep_tier_benchmark(
     """
     End-to-end Deep Tier benchmark pipeline:
     Warmup -> Segregation -> Measurements -> Metric -> Bootstrap -> Adaptive K -> CI -> MAES verdict -> Report.
+
+    Governed by Tier 1 ADR-0004:
+    - Decision T1 (Minimum Observation Window Gate): Early exit on target precision requires
+      t_elapsed >= min_budget_sec (nominal 10.0s in production) AND K >= k_min.
+    - Decision T2 (Budget Ceiling & Bounded Overshoot): Checked at iteration boundaries.
+      If t_elapsed >= max_budget_sec (nominal 45.0s in production), terminates with
+      BUDGET_OR_K_MAX_EXHAUSTED with bounded single-sample overshoot (<= Delta t_sample).
     """
     t_start = time.perf_counter()
 

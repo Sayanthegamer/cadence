@@ -64,6 +64,27 @@ Autonomous relaxation of MAES or tolerance thresholds is strictly forbidden.
   - By default, detecting a gross change issues a recommendation: `Recommendation: Run /cad-bench --deep to statistically profile this gross change.`
   - When `--auto-deep` is supplied, the Deep Tier pipeline is triggered automatically.
 
+### Decision T1: Deep Tier Minimum Observation Window ($T_{\min} = 10\text{s}$) Enforcement Policy
+
+- **Gated Dual-Condition Early Exit:**
+  Early termination based on target precision ($\text{RCIW} \le \text{RCIW}_{\text{target}}$) is **strictly prohibited** until total elapsed wall-clock time satisfies:
+  $$t_{\text{elapsed}} \ge T_{\min}$$
+  where $T_{\min} = 10.0\text{s}$ nominal in production environments (configurable to smaller windows, e.g. $0.1\text{s}..0.5\text{s}$, in rapid unit test fixtures).
+- **The Decisive Factor:**
+  Modern CPUs and GPUs utilize aggressive dynamic frequency scaling (Intel Turbo Boost, AMD Precision Boost, NVIDIA GPU Boost) that elevate clock frequencies for 2–8 seconds before settling into steady-state thermal limits. Furthermore, OS thread scheduling noise, memory bus contention, and background page management operate on multi-second timescales. Prohibiting early exit until $t \ge T_{\min}$ prevents premature false-positive declarations during transient thermal burst states.
+
+### Decision T2: Deep Tier Budget Ceiling ($T_{\max} = 45\text{s}$) & Bounded Overshoot Semantics
+
+- **Iteration-Boundary Budget Check:**
+  The adaptive budget ceiling ($T_{\max} = 45.0\text{s}$ nominal in production, configurable in test fixtures) is evaluated at **iteration boundaries**:
+  - After completing each iteration $K$, the engine checks whether $t_{\text{elapsed}} \ge T_{\max}$ or $K == K_{\max}$.
+  - If $t_{\text{elapsed}} \ge T_{\max}$, sampling ceases immediately, recording `stopping_reason: "BUDGET_OR_K_MAX_EXHAUSTED"`.
+- **Bounded Single-Sample Overshoot Semantics:**
+  Because compute iterations run to completion rather than being forcibly aborted mid-kernel, the recorded wall-clock time may exceed $T_{\max}$ by at most the execution duration of the final single sample:
+  $$T_{\max} \le t_{\text{elapsed}} \le T_{\max} + \Delta t_{\text{sample}}$$
+  This ceiling is an **adaptive budget envelope with bounded single-sample overshoot ($\le \Delta t_{\text{sample}}$)**, and must **never** be documented or represented as an exact hard microsecond cutoff.
+
+
 ---
 
 ## 3. Rejected Alternatives ("Why Not That?")
@@ -83,6 +104,18 @@ Autonomous relaxation of MAES or tolerance thresholds is strictly forbidden.
 * **Alternative 2: Conflating Direction and Status (e.g., `GROSS_REGRESSION_DETECTED`)**
   - *Why Considered:* Combines status and direction into a single string token.
   - *Why Rejected:* Violates modular reporting and schema cleanliness; status represents detection threshold crossing, while direction represents signed orientation.
+
+### Deep Tier Timing Contract Alternatives
+* **Alternative 1: Pure Sample-Count Stopping ($K \ge K_{\min}$ without Wall-Clock Floor)**
+  - *Why Considered:* Simpler single-condition stopping predicate without tracking elapsed wall clock.
+  - *Why Rejected:* For fast micro-benchmarks, $K=10$ completes in $< 50\text{ms}$. Exiting immediately risks evaluating workloads exclusively during transient boost-clock frequencies before thermal throttling or scheduler variance occur, yielding misleading optimization verdicts.
+* **Alternative 2: Asynchronous Timer Preemption with Mid-Sample Worker Termination**
+  - *Why Considered:* Enforces a strict wall-clock cutoff without single-sample overshoot.
+  - *Why Rejected:* Terminating worker processes mid-sample corrupts in-flight measurements, introduces process cancellation race conditions, and requires throwing away partially completed iterations. Iteration-boundary checking with bounded single-sample overshoot ($\le \Delta t_{\text{sample}}$) ensures all recorded iterations are clean and uncorrupted.
+* **Alternative 3: Describing Ceiling as an Exact Hard Microsecond Cutoff**
+  - *Why Considered:* Superficially simpler mental model.
+  - *Why Rejected:* Physically impossible in iterative loop execution without preemptive abortion; misleads engineers and automated tests into expecting exact wall-clock identity rather than a bounded envelope.
+
 
 ---
 
