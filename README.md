@@ -38,10 +38,15 @@ Cadence equips your agent with a pre-configured team of specialized subagents:
    * *Scope:* Impartial code and regression auditor.
    * *Role:* Inspects git diffs, executes linters and static analysis, and hunts for edge cases and regressions with zero confirmation bias.
 
+4. **The Idea Roast Council (`roast-believer`, `roast-skeptic`, `roast-investor`, `roast-judge`):**
+   * *Scope:* 4-agent adversarial council that roasts any idea before you waste 6 months building it.
+   * *Flow:* Believer makes the case $\to$ Skeptic attacks weak points $\to$ Investor checks the money $\to$ Judge delivers an uncompromising ruling (🟢 BUILD, 🟡 🏗️ FIX FIRST, or 🔴 🚜 KILL).
+
 ---
 
 ## 📦 Bundled Skills
 
+* **`cadence-roast`:** Convenes the 4-agent Idea Roast Council to stress-test your concept and save a persistent verdict.
 * **`cadence-ideate`:** Creative sparring partner for idea capture, ELI5 trade-offs, and visual architecture concepts.
 * **`cadence-flow`:** Rapid TDD execution cycle (Target $\to$ Red $\to$ Green $\to$ Refactor $\to$ Commit).
 * **`cadence-orchestrate`:** Multi-agent concurrent execution with model tiering and workspace isolation.
@@ -52,6 +57,8 @@ Cadence equips your agent with a pre-configured team of specialized subagents:
 
 ## 🚀 Quick Usage
 
+* **To stress-test an idea before building it (The Idea Roast Council):**
+  > "Use cadence-roast to roast my idea: an AI tool that generates test suites from commit messages"
 * **To brainstorm and capture a new idea (even if you're unsure how to build it):**
   > "Use cadence-ideate to help me brainstorm a real-time event notifier"
 * **To start a TDD cycle for a feature or fix:**
