@@ -23,7 +23,7 @@ Use this skill when implementing a concrete coding task, fixing a bug, or adding
 1. Identify the exact unit of behavior to implement or fix.
 2. If requirements or trade-offs have ambiguity, use `ask_question` for quick interactive clarification.
 3. Locate or determine the appropriate test file (e.g. `tests/test_<module>.py`, `<module>.spec.ts`).
-4. **API Grounding (Context-7 MCP):** When integrating third-party library functions, ground with Context-7 MCP (`resolve-library-id` $\to$ `query-docs`) to ensure the test asserts current, supported syntax rather than deprecated APIs. Proactively prompt the user if they'd like to inspect official docs.
+4. **API Grounding (Optional Context-7 MCP):** When integrating third-party library functions and Context-7 MCP is installed, ground with Context-7 MCP (`resolve-library-id` $\to$ `query-docs`) to ensure the test asserts current, supported syntax rather than deprecated APIs. If not installed, fall back to standard web search or local type definitions.
 
 ### Step 2: The RED Phase (Proof of Failure)
 1. Write a minimal test or reproduction case asserting the expected behavior:

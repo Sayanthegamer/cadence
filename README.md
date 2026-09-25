@@ -179,11 +179,32 @@ When you are planning a **commercial product, startup, paid tool, SaaS, or monet
   * 🟡 🏗️ **FIX FIRST:** Fatal flaw identified; must resolve prerequisite before writing code.
   * 🔴 🚜 **KILL:** Fundamentally unviable; pivot or abandon immediately.
 
-## 📚 Live Documentation Grounding (Context-7 MCP Integration)
+## 📚 Live Documentation Grounding (Optional Context-7 MCP)
 
 Even the most capable AI models suffer from training data cutoffs, deprecated APIs, and hallucinated function kwargs when working with fast-moving open-source libraries (e.g. Next.js App Router, PyTorch 2.x, Tailwind v4, Pydantic v2, Prisma, LangChain).
 
-Cadence natively integrates with the **Context-7 MCP Server** to provide live, authoritative documentation, exact API signatures, and verified real-world code snippets directly into your workflow:
+Cadence provides first-class support for the **Context-7 MCP Server** to fetch live, authoritative documentation, exact API signatures, and verified real-world code snippets directly into your workflow.
+
+> [!TIP]
+> **Optional Superpower (Zero Lock-In):**  
+> Cadence only invokes Context-7 **if you have chosen to install and enable the `context7` MCP server**. If Context-7 is not installed, Cadence never crashes or errors out—it gracefully falls back to standard web search and local type inspection.
+
+### 🌟 Why You Should Install Context-7 MCP:
+* **Zero Training Cutoff Hallucinations:** Always reads live official documentation rather than guessing from pre-training memory.
+* **Exact API Signatures:** Prevents test cases from failing due to hallucinated kwargs or deprecated methods.
+* **Benchmark Scores & Code Snippets:** Returns community-curated, authoritative snippets ranked by reputation score.
+
+### 🛠️ How to Install Context-7 MCP (One-Line Setup):
+
+```bash
+# For Antigravity:
+agy mcp add context7 https://mcp.context7.com/mcp
+
+# For Claude Code:
+claude mcp add context7 https://mcp.context7.com/mcp
+```
+
+### How Context-7 Powers the Workflow:
 
 ```mermaid
 flowchart LR
@@ -192,7 +213,6 @@ flowchart LR
     C --> D["3. Ground Spec / Test / Fix\n(Real Snippets & URLs)"]
 ```
 
-### How Context-7 Powers the Workflow:
 1. **In Planning (`/cad-plan`):** Validates library contracts and available methods before locking specs into UI artifacts.
 2. **In TDD Contracts (`/cad-flow`):** Asserts actual supported parameters in Red-phase tests so tests don't fail for the wrong reason.
 3. **In Scientific Debugging (`/cad-debug`):** Checks official docs for obscure runtime errors, breaking changes, or version incompatibilities.
@@ -200,7 +220,7 @@ flowchart LR
 5. **Direct User Querying (`/cad-docs`):** Run `/cad-docs <library> <topic>` at any time to pull verified snippets and official source links without leaving your IDE.
 
 > 💡 **Proactive Grounding Reflex:** Whenever you explore a new library or express uncertainty, Cadence will proactively prompt you:  
-> *"If you need live, authoritative documentation or code examples for **[Library]**, we can query Context-7 MCP via `/cad-docs <library>` or just tell me to look it up."*
+> *"If you want live, authoritative documentation or code examples for **[Library]**, we can query Context-7 MCP via `/cad-docs <library>` (or install it via `agy mcp add context7 https://mcp.context7.com/mcp` if you haven't yet)."*
 
 ---
 

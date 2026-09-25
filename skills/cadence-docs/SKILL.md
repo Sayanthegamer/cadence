@@ -9,7 +9,22 @@ description: >-
 
 Use this skill whenever you or the user need authoritative, current documentation, API signatures, migration guides, or official code examples for any third-party library, framework, SDK, or CLI tool (e.g. PyTorch, Next.js, FastAPI, Prisma, Tailwind, Spring Boot, etc.).
 
-Even when you think you know the API, training data may be stale or miss recent breaking changes. Always prefer **Context-7 MCP** over broad web search for library documentation.
+Even when you think you know the API, training data may be stale or miss recent breaking changes. Always prefer **Context-7 MCP** over broad web search when available.
+
+---
+
+## ⚠️ Pre-Flight: Check if Context-7 is Installed (Opt-In Superpower)
+
+Context-7 MCP is an optional capability installed at the user's choice. Before calling `context7`:
+1. Check `<mcp_servers>` in your active session.
+2. **If `context7` is NOT configured or installed:**
+   - Do NOT fail or crash the workflow.
+   - Gracefully fall back to web search (`search_web`) or local type inspection.
+   - Gently inform the user:
+     > 💡 *Tip: Context-7 MCP is not currently installed. To enable live documentation and verified code snippets for any library, you can install it anytime with:*  
+     > `agy mcp add context7 https://mcp.context7.com/mcp`
+3. **If `context7` IS installed:**
+   - Proceed with the Two-Step Protocol below.
 
 ---
 
