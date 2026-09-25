@@ -8,6 +8,7 @@
 [![Architecture](https://img.shields.io/badge/Architecture-Autonomous_Reflexes-teal.svg)](#-autonomous-operational-reflexes-zero-command-automation)
 [![Testing](https://img.shields.io/badge/Discipline-Strict_TDD-green.svg)](#-the-red-green-refactor-invariant)
 [![Subagents](https://img.shields.io/badge/Subagents-7_Specialized_Agents-purple.svg)](#-specialized-subagent-fleet)
+[![Context-7 MCP](https://img.shields.io/badge/Context--7_MCP-Integrated-orange.svg)](#-live-documentation-grounding-context-7-mcp-integration)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 
 Cadence is a streamlined, agentic development plugin engineered natively for modern AI developer environments (Antigravity 2.0 and Claude Code). It takes the single most effective software engineering principle popularized by Conductor—**strict Test-Driven Development (Red-Green-Refactor)**—and upgrades it with **high-leverage subagent orchestration**, **autonomous operational reflexes**, and **native UI artifacts**, while completely eliminating repository clutter, fragile disk-based state machines, and high context taxes.
@@ -29,6 +30,7 @@ Instead of drowning your Git repository in ephemeral markdown files (`conductor/
 | **Interaction Layer** | Rigid terminal prompt loops | **Adaptive UX Layer** (Interactive GUI Modals + Terminal Fallback) |
 | **Operational Triggering** | Repetitive manual slash command typing | **Autonomous Operational Reflexes** (Zero-command automation) |
 | **Anti-Hallucination** | Passive document compliance | **Physical Test Probes & Adversarial Review Gates** |
+| **Library Grounding** | Web searches or hallucinated APIs | **Context-7 MCP Grounding** (Live authoritative library docs & code snippets) |
 
 ---
 
@@ -130,6 +132,7 @@ Developers should never be burdened with typing repetitive slash commands (e.g. 
 * **Autonomous Stack Fingerprinting:** On Turn 1 in any project, Cadence silently inspects manifests (`pyproject.toml`, `package.json`, `Cargo.toml`, `go.mod`) to detect test runners, linters, and runtime versions. It will never ask you how to run tests.
 * **Autonomous Pre-Commit Hygiene:** Before declaring any task complete, Cadence automatically sweeps diffs for `print()`, `console.log()`, `debugger;`, or temporary scratch files, runs project formatters (`ruff format`, `prettier`), and verifies regression suites.
 * **Autonomous Session Standup:** When starting a fresh session or asking *"what's next?"* or *"where did we leave off?"*, Cadence inspects `git status`, recent commits, and active plan artifacts to deliver a crisp 3-bullet standup briefing.
+* **Autonomous Context-7 Grounding Reflex:** Whenever working with third-party libraries, frameworks, SDKs, or APIs (e.g. PyTorch, Next.js, FastAPI, Prisma, Tailwind, etc.) during planning, debugging, or TDD—especially when encountering unfamiliar APIs, version discrepancies, deprecations, or library-specific errors—Cadence **autonomously queries Context-7 MCP (`resolve-library-id` $\to$ `query-docs`)** instead of relying on stale training memory. When you explore new packages or express uncertainty, Cadence proactively prompts you with authoritative docs and code snippets.
 
 ---
 
@@ -176,17 +179,41 @@ When you are planning a **commercial product, startup, paid tool, SaaS, or monet
   * 🟡 🏗️ **FIX FIRST:** Fatal flaw identified; must resolve prerequisite before writing code.
   * 🔴 🚜 **KILL:** Fundamentally unviable; pivot or abandon immediately.
 
+## 📚 Live Documentation Grounding (Context-7 MCP Integration)
+
+Even the most capable AI models suffer from training data cutoffs, deprecated APIs, and hallucinated function kwargs when working with fast-moving open-source libraries (e.g. Next.js App Router, PyTorch 2.x, Tailwind v4, Pydantic v2, Prisma, LangChain).
+
+Cadence natively integrates with the **Context-7 MCP Server** to provide live, authoritative documentation, exact API signatures, and verified real-world code snippets directly into your workflow:
+
+```mermaid
+flowchart LR
+    A["Developer Prompt / Autonomous Reflex"] --> B["1. Resolve Library ID\n(resolve-library-id)"]
+    B --> C["2. Query Documentation\n(query-docs)"]
+    C --> D["3. Ground Spec / Test / Fix\n(Real Snippets & URLs)"]
+```
+
+### How Context-7 Powers the Workflow:
+1. **In Planning (`/cad-plan`):** Validates library contracts and available methods before locking specs into UI artifacts.
+2. **In TDD Contracts (`/cad-flow`):** Asserts actual supported parameters in Red-phase tests so tests don't fail for the wrong reason.
+3. **In Scientific Debugging (`/cad-debug`):** Checks official docs for obscure runtime errors, breaking changes, or version incompatibilities.
+4. **In Architecture Decisions (`/cad-decide`):** Inspects Context-7 benchmark scores and code snippet coverage to inform ADRs.
+5. **Direct User Querying (`/cad-docs`):** Run `/cad-docs <library> <topic>` at any time to pull verified snippets and official source links without leaving your IDE.
+
+> 💡 **Proactive Grounding Reflex:** Whenever you explore a new library or express uncertainty, Cadence will proactively prompt you:  
+> *"If you need live, authoritative documentation or code examples for **[Library]**, we can query Context-7 MCP via `/cad-docs <library>` or just tell me to look it up."*
+
 ---
 
 ## 📦 Comprehensive Skills Catalog
 
-Cadence includes 13 built-in skills covering the entire engineering lifecycle:
+Cadence includes 14 built-in skills covering the entire engineering lifecycle:
 
 | Skill | Category | Primary Purpose | Generated Artifacts |
 |---|---|---|---|
 | **`cadence-flow`** | Core TDD | Rapid Red $\to$ Green $\to$ Refactor execution cycle with pre-commit sanitization. | Clean Git Commits |
 | **`cadence-plan`** | Architecture | Creates an interactive implementation plan as a native Antigravity UI Artifact. | UI Artifact (`brain/`) |
 | **`cadence-orchestrate`** | Multi-Agent | Concurrent delegation across subagents with isolated workspaces and model tiering. | Execution Reports |
+| **`cadence-docs`** | Grounding | Live documentation and verified code snippets via Context-7 MCP (`resolve-library-id` $\to$ `query-docs`). | Official Docs & Snippets |
 | **`cadence-status`** | Project Health | Instant session standup, active task tracker, and working-tree overview. | Markdown Summary |
 | **`cadence-review`** | Verification | Principal Engineer diff audit, test suite verification, and PR packaging. | Review Report |
 | **`cadence-debug`** | Diagnostics | 5-step scientific root-cause autopsy (repro $\to$ hypotheses $\to$ probes $\to$ cure). | Diagnostic Log / Fix |
@@ -202,10 +229,11 @@ Cadence includes 13 built-in skills covering the entire engineering lifecycle:
 
 ## ⚡ Slash Commands Reference
 
-Cadence registers 11 native slash commands directly into your chat autocomplete for immediate control:
+Cadence registers 12 native slash commands directly into your chat autocomplete for immediate control:
 
 ```
 /cad-status   - Instant standup & session overview ("Where did we leave off?")
+/cad-docs     - Live library documentation & verified code examples via Context-7 MCP
 /cad-debug    - Scientific root-cause autopsy (repro -> hypotheses -> probes -> cure)
 /cad-flow     - High-velocity TDD cycle (Red -> Green -> Sanitize -> Commit)
 /cad-review   - Principal Engineer diff audit, test verification, & PR packaging
@@ -317,8 +345,9 @@ cadence/
 │   ├── roast-skeptic/             # Idea Roast Council: Bear case & flaws
 │   ├── roast-investor/            # Idea Roast Council: Unit economics & WTP
 │   └── roast-judge/               # Idea Roast Council: Uncompromising verdict
-├── commands/                      # 11 Direct Slash Commands
+├── commands/                      # 12 Direct Slash Commands
 │   ├── cad-status.md              # Standup & project status
+│   ├── cad-docs.md                # Context-7 MCP live documentation
 │   ├── cad-debug.md               # Scientific root-cause debugging
 │   ├── cad-flow.md                # Red-Green-Refactor TDD loop
 │   ├── cad-review.md              # Diff audit & PR packaging
@@ -329,10 +358,11 @@ cadence/
 │   ├── cad-roast.md               # Commercial idea stress-test
 │   ├── cad-plan.md                # Native UI implementation plan
 │   └── cad-revert.md              # Safe state rollback
-└── skills/                        # 13 Protocol Execution Engines
+└── skills/                        # 14 Protocol Execution Engines
     ├── cadence-flow/              # TDD Red-Green-Refactor engine
     ├── cadence-plan/              # Native artifact spec engine
     ├── cadence-orchestrate/       # Multi-agent concurrent runner
+    ├── cadence-docs/              # Context-7 MCP live grounding engine
     ├── cadence-status/            # Zero-disk status engine
     ├── cadence-review/            # Adversarial review protocol
     ├── cadence-debug/             # 5-step scientific autopsy

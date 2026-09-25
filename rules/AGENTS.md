@@ -9,6 +9,7 @@ The user should NEVER be required to manually type slash commands (e.g. `/cad-de
 4. **Autonomous Stack Fingerprinting:** On the first interaction in any project, automatically inspect manifests (`pyproject.toml`, `package.json`, `Cargo.toml`, etc.) to detect test runners and linters. Never ask the user how to run tests.
 5. **Autonomous Pre-Commit Hygiene:** Before declaring any code change complete, automatically sweep the diff for `print()`, `console.log()`, `debugger;`, or temporary scratch files, run the project formatter (`ruff format`, `prettier`), and verify full regression tests.
 6. **Autonomous Session Standup:** When starting a fresh session or when the user asks "what's next?" or "where did we leave off?", automatically inspect `git status`, recent commits, and active plan artifacts to deliver the 3-bullet standup briefing.
+7. **Autonomous Context-7 Grounding Reflex:** Whenever working with third-party libraries, frameworks, SDKs, or APIs (e.g. PyTorch, Next.js, FastAPI, Prisma, Tailwind, etc.) during planning, debugging, or TDD—especially when encountering unfamiliar APIs, version discrepancies, deprecations, or library-specific errors—**autonomously query Context-7 MCP (`resolve-library-id` -> `query-docs`)** instead of relying on stale training memory. When the user explores new libraries or expresses uncertainty, proactively prompt them: *"💡 If you need authoritative grounding or code examples for [Library], we can query Context-7 MCP via `/cad-docs <library>` or ask me to look it up."*
 
 ---
 

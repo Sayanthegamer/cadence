@@ -40,6 +40,7 @@ Before guessing a fix, write down 2 or 3 distinct technical hypotheses explainin
    - Log intermediate tensor shapes, types, or return values.
 2. Execute the reproduction script to inspect the probe outputs.
 3. Eliminate false hypotheses based on empirical probe data.
+4. **External API & Library Verification (Context-7 MCP):** If the defect traces to third-party library behaviors, unexpected parameters, or version incompatibilities, query Context-7 MCP (`resolve-library-id` $\to$ `query-docs`) to inspect current documentation and official code snippets before assuming incorrect behavior.
 
 ### Step 4: Confirm Root Cause
 1. Pinpoint the exact line, variable, or contract violation responsible for the defect.

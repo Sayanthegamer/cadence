@@ -18,6 +18,7 @@ Use this skill when planning complex features, major refactorings, or multi-step
 2. **Context Guardrail:** If reading more than 3 unfamiliar files or logs, delegate the exploration to the `research` subagent:
    - Ask `research` to inspect relevant interfaces, schemas, and test fixtures.
    - Synthesize its report directly into the plan.
+3. **External Grounding (Context-7 MCP):** If the plan involves external libraries, frameworks, or new API capabilities (e.g. Next.js, PyTorch, Redis, FastAPI, Tailwind), query Context-7 MCP (`resolve-library-id` $\to$ `query-docs`) to verify exact API contracts, supported options, and version deprecations before committing them into the plan. Proactively prompt the user if they'd like deeper grounding on specific libraries.
 
 ### Step 2: Generate the Native Plan Artifact
 Create an artifact in the session artifact directory (`brain/<conversation-id>/`) using `write_to_file`:

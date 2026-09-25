@@ -20,6 +20,7 @@ Cadence Decide captures these critical crossroads in standardized, high-signal A
 * When choosing between architectural patterns (e.g. Synchronous vs. Event-driven, In-memory vs. Redis).
 * When deciding algorithm or data structures (e.g. Tensor buffer vs. Generator, Cosine similarity vs. Euclidean).
 * Immediately following `cadence-ideate` after selecting a recommended archetype.
+* Ground library comparisons (benchmark scores, documentation coverage, active version support) using Context-7 MCP (`resolve-library-id` $\to$ `query-docs`) before formalizing the ADR. Proactively prompt the user if they want to inspect current library docs.
 
 ---
 
