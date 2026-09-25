@@ -13,8 +13,9 @@
     "exclusion_pathspecs",
     "contract_file",
     "contract_sha256",
+    "reference_provenance",
+    "validation_matrix",
     "target_backend",
-    "reference_backend",
     "track_a_differential",
     "track_b_domain_invariants",
     "verdict"
@@ -62,16 +63,43 @@
       "pattern": "^[a-f0-9]{64}$",
       "description": "SHA-256 hash of the validation contract file."
     },
-    "target_backend": {
+    "reference_provenance": {
       "type": "object",
-      "required": ["backend", "precision"],
+      "required": ["reference_identity", "reference_source_file", "reference_source_sha256", "backend", "precision"],
       "properties": {
+        "reference_identity": {
+          "type": "string",
+          "description": "Authoritative identifier and version of the golden reference implementation."
+        },
+        "reference_source_file": {
+          "type": "string",
+          "description": "Relative path to reference implementation source code."
+        },
+        "reference_source_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$",
+          "description": "SHA-256 content hash of the reference source code to prevent silent reference tampering."
+        },
         "backend": { "type": "string" },
-        "device_name": { "type": ["string", "null"] },
         "precision": { "type": "string" }
       }
     },
-    "reference_backend": {
+    "validation_matrix": {
+      "type": "object",
+      "required": ["seeds", "parameter_space"],
+      "properties": {
+        "seeds": {
+          "type": "array",
+          "items": { "type": "integer" },
+          "description": "Explicit list of PRNG seeds used in the validation matrix."
+        },
+        "parameter_space": {
+          "type": "object",
+          "description": "Explicit parameter values, step counts, and discretization deltas swept during validation."
+        }
+      }
+    },
+    "target_backend": {
       "type": "object",
       "required": ["backend", "precision"],
       "properties": {
@@ -82,20 +110,25 @@
     },
     "track_a_differential": {
       "type": "object",
-      "required": ["status", "evaluated_seeds", "max_abs_error", "max_rel_error", "l_inf_norm", "tolerances"],
+      "required": ["status", "evaluated_seeds", "max_abs_error", "max_rel_error", "l_inf_norm", "pointwise_violations", "tolerances"],
       "properties": {
         "status": { "type": "string", "enum": ["PASSED", "FAILED", "SKIPPED"] },
         "evaluated_seeds": { "type": "array", "items": { "type": "integer" } },
         "max_abs_error": { "type": "number", "minimum": 0 },
         "max_rel_error": { "type": "number", "minimum": 0 },
         "l_inf_norm": { "type": "number", "minimum": 0 },
+        "pointwise_violations": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of sample points where |cand - ref| > atol + rtol * |ref|."
+        },
         "tolerances": {
           "type": "object",
-          "required": ["atol", "rtol"],
+          "required": ["atol", "rtol", "l_inf_max"],
           "properties": {
             "atol": { "type": "number", "minimum": 0 },
             "rtol": { "type": "number", "minimum": 0 },
-            "l_inf_max": { "type": ["number", "null"] }
+            "l_inf_max": { "type": "number", "minimum": 0 }
           }
         }
       }
@@ -143,7 +176,7 @@
     "verdict": {
       "type": "string",
       "enum": ["PASSED", "FAILED"],
-      "description": "Overall certification verdict."
+      "description": "Overall certification verdict. Must be PASSED for certificate to clear the completion lock."
     }
   }
 }

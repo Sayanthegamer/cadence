@@ -50,11 +50,32 @@ flowchart TD
     Tree --> Cert["Generate Certificate: .experiments/certificates/<sha>.json"]
 ```
 
-### Track A: Differential Testing
-- Compares candidate outputs $Y_{\text{cand}}$ against reference outputs $Y_{\text{ref}}$ across a deterministic seed matrix:
-  $$|Y_{\text{cand}} - Y_{\text{ref}}| \le \text{atol} + \text{rtol} \times |Y_{\text{ref}}|$$
-  $$L_\infty = \max |Y_{\text{cand}} - Y_{\text{ref}}| \le L_{\infty, \max}$$
-- Evaluates corner cases: denormals, high-aspect-ratio geometries, zero-velocity states, high-stiffness limits.
+### Track A: Differential Testing & Executable Acceptance Semantics
+- Evaluates candidate outputs $Y_{\text{cand}}$ against reference outputs $Y_{\text{ref}}$ across a deterministic seed matrix:
+  1. **Pointwise Tolerance Condition:**
+     For every sample index $i$ across all trajectory steps and seeds:
+     $$\text{tolerance\_bound}[i] = \text{atol} + \text{rtol} \times |Y_{\text{ref}}[i]|$$
+     $$\text{is\_pointwise\_violation}[i] = \left( |Y_{\text{cand}}[i] - Y_{\text{ref}}[i]| > \text{tolerance\_bound}[i] \right)$$
+     $$\text{pointwise\_violations} = \sum_{i} \mathbf{1}_{\text{is\_pointwise\_violation}[i]}$$
+  2. **Uniform $L_\infty$ Error Norm Condition:**
+     $$L_\infty = \max_{i} |Y_{\text{cand}}[i] - Y_{\text{ref}}[i]| \le L_{\infty, \max}$$
+  3. **Strict Track A Pass Predicate:**
+     $$\text{TrackA\_Verdict} = \begin{cases} \text{PASSED} & \text{if } \text{pointwise\_violations} == 0 \text{ and } L_\infty \le L_{\infty, \max} \\ \text{FAILED} & \text{otherwise} \end{cases}$$
+- If *even a single sample* exceeds the pointwise bound or the uniform $L_\infty$ norm on *any* seed, Track A returns `FAILED`. No passing certificate is issued, and the `BLOCKED_PENDING_CERTIFICATION` lock remains engaged.
+
+### Golden Reference Provenance & Anti-Substitution Binding
+- Validation is performed against an authoritative, versioned Golden Reference (e.g. CPU FP64 or closed-form analytical solver).
+- Candidate validation is **strictly prohibited from redefining or silently substituting the reference**:
+  1. The contract declares `reference_identity` (e.g. `pendulum_analytical_fp64:v1.0.0`) and `reference_source_file`.
+  2. The oracle computes `reference_source_sha256 = SHA256(reference_source_file)` and binds it permanently into the certificate.
+  3. During pre-commit verification, if the reference source code has been altered or substituted, the hash check fails with `ERR_REFERENCE_PROVENANCE_MISMATCH`.
+
+### Validation Matrix Input Binding
+- To prevent certificates from being replayed under materially different conditions, the certificate binds the exact validation matrix:
+  - Explicit seed list: `[42, 100, 2026]`
+  - Parameter sweep space: `dt`, `steps`, `damping`, `stiffness`, mesh resolution.
+  - Target backend and precision: e.g. `CUDA / FP32`.
+- Any modification to the validation parameters or seeds requires a new certification run.
 
 ### Track B: Domain-Declared Physical Invariants
 Evaluates trajectory invariants declared in `contracts/<module>.yaml`:
@@ -127,15 +148,56 @@ function Get-Canonical-Candidate-Tree {
 
 ## 3. Pre-Commit Verification Plumbing (`Verify-Canonical-Staged-Tree`)
 
-When changes are staged and `git commit` or `cadence-review` executes, verification asserts that the staged state matches the certificate using the **exact same exclusion pathspecs** recorded in the certificate:
+---
+
+## 3. Pre-Commit Verification Plumbing (`Verify-Oracle-Certification`)
+
+When changes are staged and `git commit` or `cadence-review` executes, verification performs comprehensive multi-vector integrity assertions:
 
 ```powershell
-function Verify-Canonical-Staged-Tree {
+function Verify-Oracle-Certification {
     param(
         [string]$RepoRoot = (git rev-parse --show-toplevel),
         [string]$CertificatePath
     )
-    $cert = Get-Content $CertificatePath -Raw | ConvertFrom-Json
+    # 1. Certificate Existence Gate
+    if (-not (Test-Path $CertificatePath)) {
+        throw "ERR_CERTIFICATE_NOT_FOUND: Validation certificate not found at $CertificatePath. Run /cad-oracle before committing."
+    }
+    
+    # 2. Certificate Parse & Schema Gate
+    try {
+        $cert = Get-Content $CertificatePath -Raw | ConvertFrom-Json
+    } catch {
+        throw "ERR_CERTIFICATE_MALFORMED: Certificate is corrupted or invalid JSON."
+    }
+    
+    # 3. Verdict Assertion
+    if ($cert.verdict -ne "PASSED") {
+        throw "ERR_CERTIFICATE_VERDICT_FAILED: Candidate certification verdict is '$($cert.verdict)'. Code change is rejected."
+    }
+    
+    # 4. Contract Integrity Check (Prevents contract drift post-certification)
+    $contractPath = Join-Path $RepoRoot $cert.contract_file
+    if (-not (Test-Path $contractPath)) {
+        throw "ERR_CONTRACT_NOT_FOUND: Referenced contract file '$($cert.contract_file)' does not exist."
+    }
+    $currentContractSha = (Get-FileHash -Algorithm SHA256 $contractPath).Hash.ToLower()
+    if ($currentContractSha -ne $cert.contract_sha256) {
+        throw "ERR_CONTRACT_HASH_MISMATCH: Contract was modified after certification. Re-run /cad-oracle to re-certify."
+    }
+    
+    # 5. Reference Provenance Check (Prevents silent reference substitution)
+    $refPath = Join-Path $RepoRoot $cert.reference_provenance.reference_source_file
+    if (-not (Test-Path $refPath)) {
+        throw "ERR_REFERENCE_NOT_FOUND: Referenced reference implementation '$($cert.reference_provenance.reference_source_file)' does not exist."
+    }
+    $currentRefSha = (Get-FileHash -Algorithm SHA256 $refPath).Hash.ToLower()
+    if ($currentRefSha -ne $cert.reference_provenance.reference_source_sha256) {
+        throw "ERR_REFERENCE_PROVENANCE_MISMATCH: Golden reference implementation was modified or substituted. Re-run /cad-oracle."
+    }
+    
+    # 6. Canonical Tree Identity Assertion via Isolated Index
     $rawGitDir = (git -C $RepoRoot rev-parse --git-dir).Trim()
     $gitDir = if ([System.IO.Path]::IsPathRooted($rawGitDir)) { $rawGitDir } else { Join-Path $RepoRoot $rawGitDir }
     $primaryIndex = Join-Path $gitDir "index"
@@ -143,19 +205,15 @@ function Verify-Canonical-Staged-Tree {
     $origIndexEnv = $env:GIT_INDEX_FILE
     
     try {
-        # 1. Snapshot primary staged index
         Copy-Item $primaryIndex $tempIndex
         $env:GIT_INDEX_FILE = $tempIndex
         
-        # 2. Filter using the EXACT SAME exclusion pathspecs recorded in the certificate
+        # Filter using the EXACT SAME exclusion pathspecs recorded in the certificate
         foreach ($pattern in $cert.exclusion_pathspecs) {
             git -C $RepoRoot rm --cached -r -q --ignore-unmatch $pattern 2>$null
         }
         
-        # 3. Write the filtered staged tree
         $stagedCanonicalTreeSha = git -C $RepoRoot write-tree
-        
-        # 4. Assert exact equality
         if ($stagedCanonicalTreeSha -ne $cert.canonical_tree_sha) {
             throw "ERR_TREE_MUTATED_POST_CERTIFICATION: Staged content tree ($stagedCanonicalTreeSha) does not match certified tree ($($cert.canonical_tree_sha)). Re-run /cad-oracle before committing."
         }
@@ -195,14 +253,29 @@ Certificates are saved as physical JSON files in `.experiments/certificates/<can
   "exclusion_pathspecs": [".experiments/certificates/**", ".experiments/traces/**"],
   "contract_file": "contracts/jacobi_solver.yaml",
   "contract_sha256": "4b92f8a183d71e21b759685934524c53835f86b4...",
+  "reference_provenance": {
+    "reference_identity": "jacobi_analytical_fp64:v1.0.0",
+    "reference_source_file": "src/reference/jacobi_ref.py",
+    "reference_source_sha256": "a3f5b8...",
+    "backend": "CPU",
+    "precision": "FP64"
+  },
+  "validation_matrix": {
+    "seeds": [42, 100, 2026],
+    "parameter_space": {
+      "dt": 0.01,
+      "stiffness": [100.0, 1000.0, 10000.0],
+      "iterations": 200
+    }
+  },
   "target_backend": { "backend": "CUDA", "device_name": "NVIDIA RTX 4090", "precision": "FP32" },
-  "reference_backend": { "backend": "CPU", "device_name": "Host CPU", "precision": "FP64" },
   "track_a_differential": {
     "status": "PASSED",
     "evaluated_seeds": [42, 100, 2026],
     "max_abs_error": 0.00014,
     "max_rel_error": 0.00008,
     "l_inf_norm": 0.00031,
+    "pointwise_violations": 0,
     "tolerances": { "atol": 0.001, "rtol": 0.001, "l_inf_max": 0.005 }
   },
   "track_b_domain_invariants": {
