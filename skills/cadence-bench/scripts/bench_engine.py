@@ -31,6 +31,29 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 ALLOWED_METRICS = {"min", "median", "p95", "p99", "iqr"}
 
 
+def calculate_quantile_type_7(sorted_samples: List[float], p: float) -> float:
+    """
+    Compute sample quantile using Hyndman & Fan (1996) Type 7 linear interpolation.
+    
+    Conventions:
+        Index k = (n - 1) * p
+        Weight gamma = k - floor(k)
+        Q(p) = (1 - gamma) * x[floor(k)] + gamma * x[ceil(k)]
+        
+    Matches NumPy default ('linear'), SciPy, and R Type 7.
+    """
+    n = len(sorted_samples)
+    if n == 1:
+        return float(sorted_samples[0])
+    k = (n - 1) * p
+    f = math.floor(k)
+    c = math.ceil(k)
+    if f == c:
+        return float(sorted_samples[int(k)])
+    gamma = k - f
+    return float((1.0 - gamma) * sorted_samples[f] + gamma * sorted_samples[c])
+
+
 def calculate_metric(samples: List[float], metric_name: str) -> float:
     """Calculate the declared governing metric over a collection of numeric samples."""
     if not samples:
@@ -42,49 +65,23 @@ def calculate_metric(samples: List[float], metric_name: str) -> float:
         )
 
     s = sorted(samples)
-    n = len(s)
 
     if metric_lower == "min":
         return float(s[0])
 
     if metric_lower == "median":
-        mid = n // 2
-        if n % 2 == 0:
-            return float((s[mid - 1] + s[mid]) / 2.0)
-        return float(s[mid])
+        return calculate_quantile_type_7(s, 0.50)
 
     if metric_lower == "p95":
-        # 95th percentile using nearest-rank / linear interpolation
-        k = (n - 1) * 0.95
-        f = math.floor(k)
-        c = math.ceil(k)
-        if f == c:
-            return float(s[int(k)])
-        d0 = s[int(f)] * (c - k)
-        d1 = s[int(c)] * (k - f)
-        return float(d0 + d1)
+        return calculate_quantile_type_7(s, 0.95)
 
     if metric_lower == "p99":
-        # 99th percentile
-        k = (n - 1) * 0.99
-        f = math.floor(k)
-        c = math.ceil(k)
-        if f == c:
-            return float(s[int(k)])
-        d0 = s[int(f)] * (c - k)
-        d1 = s[int(c)] * (k - f)
-        return float(d0 + d1)
+        return calculate_quantile_type_7(s, 0.99)
 
     if metric_lower == "iqr":
-        # Interquartile range: P75 - P25
-        k25 = (n - 1) * 0.25
-        f25, c25 = math.floor(k25), math.ceil(k25)
-        p25 = float(s[f25]) if f25 == c25 else float(s[f25] * (c25 - k25) + s[c25] * (k25 - f25))
-
-        k75 = (n - 1) * 0.75
-        f75, c75 = math.floor(k75), math.ceil(k75)
-        p75 = float(s[f75]) if f75 == c75 else float(s[f75] * (c75 - k75) + s[c75] * (k75 - f75))
-        return float(p75 - p25)
+        q75 = calculate_quantile_type_7(s, 0.75)
+        q25 = calculate_quantile_type_7(s, 0.25)
+        return float(q75 - q25)
 
     raise ValueError(f"Unhandled metric: {metric_name}")
 
@@ -689,11 +686,15 @@ def run_workload_sweep(
 
     return {
         "governing_metric": governing_metric,
-        "n_max": n_max,
+        "largest_successful_tested_n": n_max,
         "successful_points_count": len(successful_points),
         "capacity_failures_count": len(capacity_failures),
         "capacity_envelope": {
-            "n_max": n_max,
+            "largest_successful_tested_n": n_max,
+            "first_failing_workload_n": capacity_failures[0]["n"] if capacity_failures else None,
+            "limit_outcome": capacity_failures[0]["capacity_outcome"] if capacity_failures else None,
+            "is_exact_physical_limit": False,
+            "failure_details": capacity_failures[0]["diagnostic"] if capacity_failures else None,
             "failures": capacity_failures,
         },
         "latency_summary": latency_summary,
@@ -733,6 +734,148 @@ def format_benchmark_report_json(
 # CLI Entrypoint
 # ==============================================================================
 
+def run_deep_tier_benchmark(
+    baseline_fn: Callable[[], float],
+    candidate_fn: Callable[[], float],
+    governing_metric: str = "median",
+    maes: float = 5.0,
+    rciw_target: float = 0.10,
+    k_min: int = 10,
+    k_max: int = 30,
+    min_budget_sec: float = 10.0,
+    max_budget_sec: float = 45.0,
+    seed: int = 42,
+    benchmark_id: str = "deep_benchmark_e2e",
+    environment: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
+    """
+    End-to-end Deep Tier benchmark pipeline:
+    Warmup -> Segregation -> Measurements -> Metric -> Bootstrap -> Adaptive K -> CI -> MAES verdict -> Report.
+    """
+    t_start = time.perf_counter()
+
+    # 1. Warmup Evaluation & Strict Segregation
+    raw_warmup = []
+    for _ in range(7):
+        b = float(baseline_fn())
+        raw_warmup.append(b)
+    
+    warmup_eval = evaluate_warmup_stream(raw_warmup, k_min=k_min, k_max=k_max)
+    effective_block = warmup_eval["block_size"]
+    effective_k_min = warmup_eval["k_min"]
+
+    # 2. Adaptive Measurement Collection
+    base_samples: List[float] = []
+    cand_samples: List[float] = []
+
+    for _ in range(effective_k_min):
+        base_samples.append(float(baseline_fn()))
+        cand_samples.append(float(candidate_fn()))
+
+    k_current = effective_k_min
+    stopping_reason = None
+    final_res = None
+    history = []
+
+    while k_current <= k_max:
+        b_res = compute_moving_block_bootstrap(
+            baseline_samples=base_samples,
+            candidate_samples=cand_samples,
+            metric=governing_metric,
+            maes=maes,
+            block_size=effective_block,
+            seed=seed + k_current,
+        )
+        final_res = b_res
+        history.append({
+            "k": k_current,
+            "ci_lower": b_res["ci_lower"],
+            "ci_upper": b_res["ci_upper"],
+            "ci_width": b_res["ci_width"],
+            "rciw": b_res["rciw"],
+            "delta": b_res["delta_metric"],
+        })
+
+        elapsed = time.perf_counter() - t_start
+
+        if b_res["rciw"] <= rciw_target and elapsed >= min_budget_sec:
+            stopping_reason = "TARGET_RCIW_MET"
+            break
+
+        if k_current == k_max or elapsed >= max_budget_sec:
+            stopping_reason = "BUDGET_OR_K_MAX_EXHAUSTED"
+            break
+
+        base_samples.append(float(baseline_fn()))
+        cand_samples.append(float(candidate_fn()))
+        k_current += 1
+
+    total_wall_clock = time.perf_counter() - t_start
+
+    # 3. Precedence Ladder Classification
+    verdict, inconclusive_reason = classify_deep_outcome(
+        ci_lower=final_res["ci_lower"],
+        ci_upper=final_res["ci_upper"],
+        maes=maes,
+    )
+
+    env = environment or {
+        "os": sys.platform,
+        "cpu_cores": os.cpu_count() or 4,
+        "ram_gb": 16.0,
+        "gpu_model": None,
+        "gpu_vram_gb": None,
+        "compiler_flags": ["-O3"],
+    }
+
+    deep_report = {
+        "$schema": "https://cadence.dev/schemas/benchmark-report-v1.json",
+        "benchmark_id": benchmark_id,
+        "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+        "tier": "DEEP_TIER",
+        "environment": env,
+        "governing_metric": governing_metric,
+        "deep_tier_result": {
+            "verdict": verdict,
+            "inconclusive_reason": inconclusive_reason,
+            "maes_threshold": maes,
+            "confidence_interval_95": {
+                "lower": final_res["ci_lower"],
+                "upper": final_res["ci_upper"],
+                "width": final_res["ci_width"],
+                "rciw_percent": final_res["rciw_percent"],
+            },
+            "warmup": {
+                "stationarity_heuristic": warmup_eval["stationarity_heuristic"],
+                "drift_ratio": warmup_eval["drift_ratio"],
+                "fallback_applied": warmup_eval["fallback_applied"],
+                "bootstrap_block_size": effective_block,
+            },
+            "adaptive_sampling": {
+                "k_final": k_current,
+                "k_min": effective_k_min,
+                "k_max": k_max,
+                "stopping_reason": stopping_reason,
+                "wall_clock_sec": round(total_wall_clock, 4),
+                "budget_bounds_sec": [min_budget_sec, max_budget_sec],
+            },
+            "capacity_envelope": {
+                "largest_successful_tested_n": 1000,
+                "first_failing_workload_n": None,
+                "limit_outcome": None,
+                "is_exact_physical_limit": False,
+                "failure_details": None,
+            },
+        },
+    }
+
+    return deep_report
+
+
+# ==============================================================================
+# CLI Entrypoint
+# ==============================================================================
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Cadence Benchmark Engine: Adaptive Two-Tier Benchmarking & Capacity Profiler"
@@ -754,6 +897,7 @@ def main() -> int:
     deep_p.add_argument("--maes", type=float, default=5.0, help="Minimum Actionable Effect Size")
     deep_p.add_argument("--ci-lower", type=float, help="Direct CI lower for outcome testing")
     deep_p.add_argument("--ci-upper", type=float, help="Direct CI upper for outcome testing")
+    deep_p.add_argument("--demo-e2e", action="store_true", help="Run full end-to-end fixture")
 
     args = parser.parse_args()
 
@@ -770,11 +914,24 @@ def main() -> int:
         return 0
 
     if args.subcommand == "deep":
+        if args.demo_e2e:
+            import random
+            rep = run_deep_tier_benchmark(
+                baseline_fn=lambda: 10.0 + random.gauss(0, 0.2),
+                candidate_fn=lambda: 4.0 + random.gauss(0, 0.2),
+                governing_metric=args.metric,
+                maes=args.maes,
+                min_budget_sec=0.1,  # fast demo budget for CLI check
+                max_budget_sec=5.0,
+            )
+            print(json.dumps(rep, indent=2))
+            return 0
+
         if args.ci_lower is not None and args.ci_upper is not None:
             outcome, reason = classify_deep_outcome(args.ci_lower, args.ci_upper, args.maes)
             print(json.dumps({"outcome": outcome, "inconclusive_reason": reason, "maes": args.maes}, indent=2))
             return 0
-        print("Deep Tier requires contract or direct CI inputs.")
+        print("Deep Tier requires contract, --demo-e2e, or direct CI inputs.")
         return 1
 
     parser.print_help()

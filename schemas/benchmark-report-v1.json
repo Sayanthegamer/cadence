@@ -30,7 +30,7 @@
     },
     "governing_metric": {
       "type": "string",
-      "enum": ["min", "median", "p95", "p99", "iqr", "throughput"]
+      "enum": ["min", "median", "p95", "p99", "iqr"]
     },
     "fast_tier_result": {
       "type": "object",
@@ -96,11 +96,13 @@
         "capacity_envelope": {
           "type": "object",
           "properties": {
-            "max_supported_n": { "type": ["number", "null"] },
+            "largest_successful_tested_n": { "type": ["number", "null"] },
+            "first_failing_workload_n": { "type": ["number", "null"] },
             "limit_outcome": {
               "type": ["string", "null"],
               "enum": ["CAPACITY_LIMIT_TIMEOUT", "CAPACITY_LIMIT_OOM", "CAPACITY_LIMIT_DEVICE_LOST", "CAPACITY_LIMIT_WORKER_CRASH", null]
             },
+            "is_exact_physical_limit": { "type": "boolean" },
             "failure_details": { "type": ["string", "null"] }
           }
         }
