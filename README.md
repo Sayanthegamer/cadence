@@ -46,9 +46,10 @@ Cadence equips your agent with a pre-configured team of specialized subagents:
 
 ## 📦 Bundled Skills
 
+* **`cadence-decide`:** "Why This, Not That" Architectural Decision Record (ADR) engine that preserves engineering rationale, impresses interviewers, and aligns future agents.
 * **`cadence-roast`:** Convenes the 4-agent Idea Roast Council to stress-test commercial and startup concepts before building.
 * **`cadence-ideate`:** Creative sparring partner for idea capture, ELI5 trade-offs, and visual architecture concepts (great for all projects, including experiments).
-* **`cadence-flow`:** Rapid TDD execution cycle (Target $\to$ Red $\to$ Green $\to$ Refactor $\to$ Commit).
+* **`cadence-flow`:** Rapid TDD execution cycle (Target $\to$ Red $\to$ Green $\to$ Refactor $\to$ Commit) with pre-commit sanitization.
 * **`cadence-orchestrate`:** Multi-agent concurrent execution with model tiering and workspace isolation.
 * **`cadence-plan`:** Native UI Artifact architecture and feature specification with zero Git clutter.
 * **`cadence-revert`:** Clean rollback of dead-end hypotheses back to known-clean state.
@@ -57,6 +58,8 @@ Cadence equips your agent with a pre-configured team of specialized subagents:
 
 ## 🚀 Quick Usage
 
+* **To record a critical architecture choice ("Why This, Not That"):**
+  > "Use cadence-decide to record our decision to use local SQLite instead of Postgres"
 * **To stress-test an idea before building it (The Idea Roast Council):**
   > "Use cadence-roast to roast my idea: an AI tool that generates test suites from commit messages"
 * **To brainstorm and capture a new idea (even if you're unsure how to build it):**
