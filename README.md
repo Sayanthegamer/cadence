@@ -1,5 +1,9 @@
 # Cadence ⚡
 
+<p align="center">
+  <img src="assets/banner.png" alt="Cadence Banner" width="100%" />
+</p>
+
 **High-Velocity Spec & TDD Execution Engine for Modern AI Coding Agents**
 
 > *"The Red $\to$ Green discipline you love from Conductor, without the file bureaucracy that slows you down."*
