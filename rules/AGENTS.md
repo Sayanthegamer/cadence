@@ -27,8 +27,10 @@ Every functional code change must follow the strict three-phase cadence:
 
 ---
 
-## 3. Subagent Orchestration
-To protect context window capacity and prevent attention degradation:
-- **`research` Subagent:** Delegate read-only codebase exploration, multi-file searches (>3 files), and external documentation lookups to the `research` subagent.
-- **`self` Subagent:** Delegate isolated sub-component implementations or background test runs to the `self` subagent.
-- The primary agent acts as orchestrator, synthesizing results and driving the Red-Green loop.
+## 3. High-Leverage Subagent Orchestration
+To protect context window capacity, prevent cognitive bias, and maximize throughput:
+- **`cadence-scout` / `research`:** Delegate codebase reconnaissance, multi-file searches (>3 files), and dependency mapping to scout subagents. Launch them concurrently in parallel for multi-area surveys.
+- **`cadence-tester`:** Delegate the Red phase and test harness creation. Ensure empirical proof of failure before code edits.
+- **`cadence-reviewer`:** Delegate impartial code review, regression audits, and static analysis checks on diffs.
+- **`self`:** Delegate isolated sub-component implementations or background test runs (using `Workspace: "branch"` or `"share"` for risky/experimental refactors).
+- **The Primary Agent:** Acts as the Lead Architect and Synthesizer, driving the workflow, presenting UI Artifacts, and interfacing with the user.

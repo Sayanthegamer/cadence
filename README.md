@@ -2,7 +2,7 @@
 
 > **The Red $\to$ Green discipline you love from Conductor, without the file bureaucracy that slows you down.**
 
-Cadence is a streamlined agent plugin designed specifically for modern AI developer environments. It takes the single most effective software engineering principle popularized by Conductor—**strict Test-Driven Development (Red-Green-Refactor)**—and strips away the repository clutter, file-based state machines, and high context taxes.
+Cadence is a streamlined, agentic development plugin designed specifically for modern AI developer environments. It takes the single most effective software engineering principle popularized by Conductor—**strict Test-Driven Development (Red-Green-Refactor)**—and pairs it with **high-leverage subagent orchestration** while stripping away repository clutter, file-based state machines, and high context taxes.
 
 ---
 
@@ -10,43 +10,52 @@ Cadence is a streamlined agent plugin designed specifically for modern AI develo
 
 | Feature | Conductor (Legacy) | Cadence (Antigravity 2.0) |
 |---|---|---|
-| **Core TDD Contract** | Red $\to$ Green $\to$ Polish | **Red $\to$ Green $\to$ Refactor** |
+| **Core TDD Contract** | Red $\to$ Green $\to$ Polish | **Red $\to$ Green $\to$ Refactor** *(Empirically enforced)* |
 | **Plan & Spec Storage** | Heavy markdown in Git (`conductor/tracks/...`) | **Native UI Artifacts** (`brain/`) — Zero Git clutter |
 | **State Tracking** | Checkbox parsing in Git, `metadata.json` | **Live Reactive Artifacts** & Session State |
-| **Prompt Overhead** | ~15–25 KB per turn (8.5 KB `workflow.md`) | **< 2 KB focused rules**, progressive skill loading |
-| **Subagent Delegation** | Not built-in | **Native Subagent First** (`research` & `self`) |
+| **Prompt Overhead** | ~15–25 KB per turn (8.5 KB `workflow.md`) | **< 2 KB lean rules**, progressive skill loading |
+| **Subagent Leverage** | Single-threaded linear turns | **Concurrent Specialized Subagents** (Scout, Tester, Reviewer) |
+| **Workspace Isolation** | Dirtying working tree during trials | **Isolated Workspaces** (`Workspace: "branch"` / `"share"`) |
 | **User Interaction** | Rigid multi-question terminal prompts | **Interactive GUI Modals** (`ask_question`) |
+| **Impasse Recovery** | Complex multi-file state reverts | **Clean Rollback** (`cadence-revert`) |
+
+---
+
+## 🤖 Specialized Subagents
+
+Cadence equips your agent with a pre-configured team of specialized subagents:
+
+1. **`cadence-scout` (Reconnaissance Specialist):**
+   * *Scope:* Read-only, ultra-fast codebase surveys and dependency tracing.
+   * *Model:* Defaults to `flash` for near-instant responses.
+   * *Benefit:* Dispatches in parallel to map different parts of the repo without bloating the lead agent's context.
+
+2. **`cadence-tester` (TDD & Contract Specialist):**
+   * *Scope:* Crafts targeted test cases to reproduce bugs or assert feature contracts.
+   * *Role:* Executes tests to empirically prove failure ("Red Phase") before production code is written.
+
+3. **`cadence-reviewer` (Adversarial Quality Auditor):**
+   * *Scope:* Impartial code and regression auditor.
+   * *Role:* Inspects git diffs, executes linters and static analysis, and hunts for edge cases and regressions with zero confirmation bias.
 
 ---
 
 ## 📦 Bundled Skills
 
-### 1. `cadence-flow`
-The daily driver for bug fixes and feature development.
-* **Target:** Pinpoint requirement or reproduction scenario.
-* **Red:** Write or run the failing test. Prove failure before touching application code.
-* **Green:** Write minimal code to turn the test green.
-* **Refactor:** Format, typecheck, lint, and run regression suite.
-* **Commit:** Produce an atomic, conventional commit.
-
-### 2. `cadence-plan`
-For multi-step features or large refactorings.
-* Creates a rich **Antigravity UI Artifact** in the auxiliary pane (with Mermaid diagrams and task checklists).
-* Preserves context cleanly without committing scratch markdown files into your repository.
-* Automatically delegates deep exploration to the `research` subagent.
-
-### 3. `cadence-revert`
-When an implementation path hits a local minimum or unmanageable regression:
-* Diagnoses and captures root-cause takeaways.
-* Safely rolls back working tree changes back to a known-clean state for a fresh attempt.
+* **`cadence-flow`:** Rapid TDD execution cycle (Target $\to$ Red $\to$ Green $\to$ Refactor $\to$ Commit).
+* **`cadence-orchestrate`:** Multi-agent concurrent execution with model tiering and workspace isolation.
+* **`cadence-plan`:** Native UI Artifact architecture and feature specification with zero Git clutter.
+* **`cadence-revert`:** Clean rollback of dead-end hypotheses back to known-clean state.
 
 ---
 
 ## 🚀 Quick Usage
 
 * **To start a TDD cycle for a feature or fix:**
-  > "Use cadence-flow to implement the JWT refresh handler with TDD"
-* **To design a large feature cleanly:**
-  > "Use cadence-plan to architect the multi-tenant billing pipeline"
-* **To discard a failed experiment:**
-  > "Use cadence-revert to rollback this attempt and let's rethink the strategy"
+  > "Use cadence-flow to fix [bug] with a failing test first"
+* **To unleash the multi-agent team on a complex problem:**
+  > "Use cadence-orchestrate to investigate and solve [feature]"
+* **To design a large architecture cleanly:**
+  > "Use cadence-plan to design [feature]"
+* **To roll back an unviable experiment:**
+  > "Use cadence-revert to reset this attempt"
