@@ -60,3 +60,26 @@ To protect context window capacity, prevent cognitive bias, and maximize through
 - **`cadence-reviewer`:** Delegate impartial code review, regression audits, invariant verification, and static analysis checks on diffs.
 - **`self`:** Delegate isolated sub-component implementations or background test runs (using `Workspace: "branch"` or `"share"` for risky/experimental refactors).
 - **The Primary Agent:** Acts as the Lead Architect and Synthesizer, driving the workflow, presenting UI Artifacts, and interfacing with the user.
+
+---
+
+## 5. The Four Scientific Pillars & ADR Compliance
+All agent operations across scientific compute, physics simulations, and numerical backends must strictly adhere to the ratified Architectural Decision Records in `.agents/decisions/`:
+
+1. **Two-Tier Architectural Governance ([ADR-0001](file:///C:/Users/Anon/.gemini/config/plugins/cadence/.agents/decisions/ADR-0001-two-tier-architectural-governance.md)):**
+   - Strictly classify decisions across the 8 Material Impact Vectors.
+   - Any impact on numerical correctness, determinism, precision/tolerances, performance scaling, memory layout, concurrency, interfaces, or algorithmic dependencies requires an Evidence Dossier and interactive human authorization (`ask_question`).
+   - Ambiguity strictly defaults to Tier 1 under the Uncertainty Invariant.
+2. **Scientific Failure Archival ([ADR-0002](file:///C:/Users/Anon/.gemini/config/plugins/cadence/.agents/decisions/ADR-0002-scientific-failure-archival.md)):**
+   - Distinguish Class A ordinary defects (wiped cleanly) from Class B scientific failures (archived in `.experiments/` with CAS SHA-256 anchoring).
+   - Create Git branches selectively based on value; preserve negative knowledge; default to preservation under uncertainty.
+3. **Layered Oracle Validation ([ADR-0003](file:///C:/Users/Anon/.gemini/config/plugins/cadence/.agents/decisions/ADR-0003-layered-oracle-validation.md)):**
+   - Dual-track verification: Track A differential testing against Golden Reference Oracle (`atol`, `rtol`, $L_\infty$) and Track B physical invariants (energy conservation, symmetries, non-NaN/Inf).
+   - Canonical Certified Content Tree SHA computed via isolated temporary Git index (`GIT_INDEX_FILE`), guaranteeing self-inclusion immunity and post-certification mutation detection.
+   - Tolerance relaxation is strictly a Tier 1 human decision.
+4. **Adaptive Two-Tier Benchmarking ([ADR-0004](file:///C:/Users/Anon/.gemini/config/plugins/cadence/.agents/decisions/ADR-0004-adaptive-two-tier-benchmarking.md)):**
+   - Fast Tier: $\le 3\text{s}$ wall-clock budget, $> 25.000\%$ gross-change detection with decoupled direction (`REGRESSION`, `SPEEDUP`, `NEUTRAL`). Fast Tier never certifies optimization, regression, or equivalence.
+   - Deep Tier: Moving-block bootstrap 95% CI vs MAES. Adaptive stopping on RCIW (normal: $\text{CI}_{\text{width}} / |\Delta|$; near-zero: $(\text{CI}_{\text{width}} / 2) / \text{MAES}$).
+   - Gated minimum observation window ($t \ge T_{\min} = 10.0\text{s}$) to observe thermal and scheduler variance before early exit is permitted; iteration-boundary budget ceiling ($T_{\max} = 45.0\text{s}$) with bounded single-sample overshoot ($\le \Delta t_{\text{sample}}$).
+   - Canonical 5-step precedence ladder vs MAES; capacity envelope isolation with Windows-native watchdog process-tree termination (`taskkill.exe /F /T /PID`).
+

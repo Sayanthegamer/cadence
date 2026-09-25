@@ -2,11 +2,12 @@
 
 **High-Velocity Spec & TDD Execution Engine for Modern AI Coding Agents**
 
-> *"The Red $\to$ Green discipline you love from Conductor, without the file bureaucracy that slows you down."*
+> *"The Red $\to$ Green discipline you love from Conductor, evolved for scientific compute, physical simulations, and modern software engineering."*
 
 [![Antigravity](https://img.shields.io/badge/Antigravity-2.0-blue.svg)](https://antigravity.google)
 [![Architecture](https://img.shields.io/badge/Architecture-Autonomous_Reflexes-teal.svg)](#-autonomous-operational-reflexes-zero-command-automation)
 [![Testing](https://img.shields.io/badge/Discipline-Strict_TDD-green.svg)](#-the-red-green-refactor-invariant)
+[![Pillars](https://img.shields.io/badge/Scientific_Pillars-4_Engines-purple.svg)](#-the-four-scientific-computing-pillars)
 [![Subagents](https://img.shields.io/badge/Subagents-7_Specialized_Agents-purple.svg)](#-specialized-subagent-fleet)
 [![Context-7 MCP](https://img.shields.io/badge/Context--7_MCP-Integrated-orange.svg)](#-live-documentation-grounding-context-7-mcp-integration)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
@@ -30,7 +31,41 @@ Instead of drowning your Git repository in ephemeral markdown files (`conductor/
 | **Interaction Layer** | Rigid terminal prompt loops | **Adaptive UX Layer** (Interactive GUI Modals + Terminal Fallback) |
 | **Operational Triggering** | Repetitive manual slash command typing | **Autonomous Operational Reflexes** (Zero-command automation) |
 | **Anti-Hallucination** | Passive document compliance | **Physical Test Probes & Adversarial Review Gates** |
+| **Scientific Computing** | None (pure web/app focus) | **Four Scientific Pillars** (Governance, Archival, Oracles, Statistical Benchmarking) |
 | **Library Grounding** | Web searches or hallucinated APIs | **Context-7 MCP Grounding** (Live authoritative library docs & code snippets) |
+
+---
+
+## 🔬 The Four Scientific Computing Pillars
+
+Cadence provides full architectural, verification, and empirical support for experimental compute, numerical physics, GPU kernels, and simulation software alongside high-velocity web/app development:
+
+```mermaid
+flowchart TD
+    subgraph P1 ["Pillar 1: Two-Tier Architectural Governance"]
+        G["ADR-0001: 8 Material Impact Vectors\n(Correctness, PRNG, tolerances, scaling,\nmemory layout, concurrency, interfaces, dependencies)"] --> Gate["Human Decision Gate (ask_question)\nNeutral Evidence Dossiers"]
+    end
+
+    subgraph P2 ["Pillar 2: Scientific Failure Archival"]
+        R["cadence-revert"] --> Classify{"Class A Defect\nvs.\nClass B Scientific Failure?"}
+        Classify -- "Class A (Typo/Bug)" --> Wipe["Clean Reset (Zero Clutter)"]
+        Classify -- "Class B (Negative Result)" --> Archive[".experiments/ Metadata + CAS SHA-256\nSelective Branching (archive/exp-*)"]
+    end
+
+    subgraph P3 ["Pillar 3: Layered Oracle Validation"]
+        O["cadence-oracle (/cad-oracle)"] --> TrackA["Track A: Differential Testing vs Golden Reference\n(atol, rtol, L_inf bounds across Seed Matrix)"]
+        O --> TrackB["Track B: Domain Physical Invariants\n(Energy conservation, symmetries, non-NaN/Inf)"]
+        TrackA & TrackB --> Tree["Canonical Certified Content Tree\n(Temporary index plumbing excluding certificates)"]
+        Tree --> Cert[".experiments/certificates/<tree_sha>.json\nTolerance Relaxation = Tier 1 Gate"]
+    end
+
+    subgraph P4 ["Pillar 4: Adaptive Two-Tier Benchmarking"]
+        B["cadence-bench (/cad-bench)"] --> Fast["Fast Tier (<= 3s wall-clock)\n> 25% Gross-Change Screening\nDecoupled Direction (REGRESSION/SPEEDUP)"]
+        B --> Deep["Deep Tier (10s..45s Adaptive Envelope)\nMoving-Block Bootstrap 95% CI vs MAES\nAuthorized RCIW / Near-Zero MAES Formula"]
+        Deep --> Precedence["5-Step Mutually Exclusive Precedence Ladder\n(Optimization, Equivalence, Regression, Inconclusive)"]
+        Deep --> Watchdog["Windows Watchdog Tree Termination\ntaskkill /F /T /PID -> Capacity Envelope Isolation"]
+    end
+```
 
 ---
 
@@ -226,45 +261,64 @@ flowchart LR
 
 ## 📦 Comprehensive Skills Catalog
 
-Cadence includes 14 built-in skills covering the entire engineering lifecycle:
+Cadence includes 15 built-in skills covering the entire engineering lifecycle:
 
 | Skill | Category | Primary Purpose | Generated Artifacts |
 |---|---|---|---|
 | **`cadence-flow`** | Core TDD | Rapid Red $\to$ Green $\to$ Refactor execution cycle with pre-commit sanitization. | Clean Git Commits |
 | **`cadence-plan`** | Architecture | Creates an interactive implementation plan as a native Antigravity UI Artifact. | UI Artifact (`brain/`) |
+| **`cadence-oracle`** | Scientific | Dual-track differential reference testing and physical invariant verification with canonical tree certification. | Validation Certificate (`.experiments/certificates/`) |
+| **`cadence-bench`** | Performance | Adaptive Two-Tier Benchmark (Fast Tier $\le 3\text{s}$ gross-change detection & Deep Tier moving-block bootstrap vs MAES). | Benchmark Report (`schemas/benchmark-report-v1.json`) |
+| **`cadence-revert`** | Safety & Archival | Safe rollback of Class A defects and 2A+2B hybrid archival of Class B scientific failures with CAS SHA-256 anchoring. | `.experiments/` Experiment Archive |
+| **`cadence-decide`** | Governance | Two-Tier Architectural Governance across 8 Material Impact Vectors with neutral Evidence Dossiers and human gates. | `.agents/decisions/ADR-*.md` |
 | **`cadence-orchestrate`** | Multi-Agent | Concurrent delegation across subagents with isolated workspaces and model tiering. | Execution Reports |
 | **`cadence-docs`** | Grounding | Live documentation and verified code snippets via Context-7 MCP (`resolve-library-id` $\to$ `query-docs`). | Official Docs & Snippets |
 | **`cadence-status`** | Project Health | Instant session standup, active task tracker, and working-tree overview. | Markdown Summary |
 | **`cadence-review`** | Verification | Principal Engineer diff audit, test suite verification, and PR packaging. | Review Report |
 | **`cadence-debug`** | Diagnostics | 5-step scientific root-cause autopsy (repro $\to$ hypotheses $\to$ probes $\to$ cure). | Diagnostic Log / Fix |
-| **`cadence-bench`** | Performance | Micro-benchmarking execution latency, throughput, and memory/VRAM deltas. | Benchmark Comparison |
 | **`cadence-clean`** | Janitor | Safe dead-code purge and tech-debt cleanup with automated rollback on failure. | Cleaned Source Code |
 | **`cadence-tour`** | Onboarding | Interactive codebase architecture map and *"Read These 3 Files First"* onboarding tour. | Visual UI Artifact |
-| **`cadence-decide`** | Architecture | Records "Why This, Not That" Architectural Decision Records. | `.agents/decisions/ADR-*.md` |
 | **`cadence-roast`** | Strategy | Convenes the 4-agent Idea Roast Council to stress-test commercial products. | Roast Council Verdict |
 | **`cadence-ideate`** | Exploration | Creative sparring partner for idea capture, ELI5 trade-offs, and visual architectures. | UI Ideation Artifact |
-| **`cadence-revert`** | Safety | Safe atomic rollback of failed experiments or invalid tasks back to clean state. | Clean Working Tree |
 
 ---
 
 ## ⚡ Slash Commands Reference
 
-Cadence registers 12 native slash commands directly into your chat autocomplete for immediate control:
+Cadence registers 13 native slash commands directly into your chat autocomplete for immediate control:
 
 ```
 /cad-status   - Instant standup & session overview ("Where did we leave off?")
 /cad-docs     - Live library documentation & verified code examples via Context-7 MCP
 /cad-debug    - Scientific root-cause autopsy (repro -> hypotheses -> probes -> cure)
 /cad-flow     - High-velocity TDD cycle (Red -> Green -> Sanitize -> Commit)
+/cad-oracle   - Layered oracle validation (differential testing vs golden ref + physical invariants)
+/cad-bench    - Adaptive Two-Tier Benchmark (Fast gross-change check or Deep statistical profile)
 /cad-review   - Principal Engineer diff audit, test verification, & PR packaging
-/cad-bench    - Micro-benchmark latency, throughput, & memory before vs. after
 /cad-clean    - Safe dead-code purge & tech-debt cleanup with auto-rollback
 /cad-tour     - Interactive architecture map & "Read These 3 Files First" tour
 /cad-decide   - Record "Why This, Not That" ADR in .agents/decisions/
 /cad-roast    - Convene the 4-agent Idea Roast Council for startups/commercial ideas
 /cad-plan     - Create interactive UI Plan Artifact with zero Git clutter
-/cad-revert   - Safe emergency reset of failed experiments back to clean Git
+/cad-revert   - Safe defect reset or Class B scientific failure archival to .experiments/
 ```
+
+---
+
+## 📜 Architectural Decision Records (ADRs) & Schemas
+
+Cadence standardizes all scientific records and governance contracts with versioned, machine-readable JSON schemas and ratified ADRs:
+
+### Ratified ADRs (`.agents/decisions/`)
+* **[ADR-0001](file:///C:/Users/Anon/.gemini/config/plugins/cadence/.agents/decisions/ADR-0001-two-tier-architectural-governance.md):** Two-Tier Architectural Governance & The 8 Material Impact Vectors
+* **[ADR-0002](file:///C:/Users/Anon/.gemini/config/plugins/cadence/.agents/decisions/ADR-0002-scientific-failure-archival.md):** Scientific Failure Archival (2A + Selective 2B Hybrid Architecture)
+* **[ADR-0003](file:///C:/Users/Anon/.gemini/config/plugins/cadence/.agents/decisions/ADR-0003-layered-oracle-validation.md):** Layered Oracle Validation & Canonical Certified Content Tree
+* **[ADR-0004](file:///C:/Users/Anon/.gemini/config/plugins/cadence/.agents/decisions/ADR-0004-adaptive-two-tier-benchmarking.md):** Adaptive Two-Tier Benchmarking: Precision Formulations, Gross-Change Semantics & Timing Contracts
+
+### Standardized Schemas (`schemas/`)
+* **[`schemas/experiment-v1.json`](file:///C:/Users/Anon/.gemini/config/plugins/cadence/schemas/experiment-v1.json):** Schema for Class B scientific failure metadata and CAS SHA-256 trace anchoring.
+* **[`schemas/validation-certificate-v1.json`](file:///C:/Users/Anon/.gemini/config/plugins/cadence/schemas/validation-certificate-v1.json):** Cryptographically bound certificate for Track A/B validation, Canonical Tree SHA, and golden reference provenance.
+* **[`schemas/benchmark-report-v1.json`](file:///C:/Users/Anon/.gemini/config/plugins/cadence/schemas/benchmark-report-v1.json):** Schema for Fast Tier screening and Deep Tier adaptive statistical profiling reports.
 
 ---
 
@@ -321,7 +375,22 @@ Cadence executes the 5-step scientific autopsy:
 4. **Root Cause Identification:** Pinpoints the exact line and underlying defect.
 5. **Surgical Cure & Regression Test:** Implements the fix and adds a permanent regression test.
 
-### 3. Stress-Testing a Commercial Idea
+### 3. Accelerated Kernel Oracle Validation & Benchmarking
+
+When implementing or optimizing a compute kernel (e.g., CUDA/Metal shader or numerical solver):
+
+```bash
+# Step 1: Validate differential accuracy & physical invariants
+/cad-oracle --contract contracts/diffusion.yaml
+
+# Step 2: Fast Tier rapid screening during development (<= 3s)
+/cad-bench fast --base-min 12.4 --cand-min 9.1
+
+# Step 3: Deep Tier adaptive statistical profiling before merge (10s..45s)
+/cad-bench deep --metric median --maes 1.0
+```
+
+### 4. Stress-Testing a Commercial Idea
 
 ```bash
 /cad-roast "A SaaS that monitors LLM API spend and automatically switches models"
@@ -357,6 +426,17 @@ cadence/
 ├── plugin.json                    # Plugin metadata and descriptor
 ├── rules/
 │   └── AGENTS.md                  # Autonomous operational directives & TDD invariant
+├── .agents/
+│   └── decisions/                 # Ratified Architectural Decision Records (ADRs)
+│       ├── README.md              # ADR Index
+│       ├── ADR-0001-...           # Two-Tier Architectural Governance
+│       ├── ADR-0002-...           # Scientific Failure Archival
+│       ├── ADR-0003-...           # Layered Oracle Validation
+│       └── ADR-0004-...           # Adaptive Two-Tier Benchmarking
+├── schemas/                       # Machine-Readable JSON Schemas
+│   ├── experiment-v1.json         # Scientific experiment archival schema
+│   ├── validation-certificate-v1.json # Oracle validation certificate schema
+│   └── benchmark-report-v1.json   # Two-Tier benchmark report schema
 ├── agents/                        # 7 Specialized Subagents
 │   ├── cadence-scout/             # Fast read-only codebase explorer
 │   ├── cadence-tester/            # Red-phase TDD & test specialist
@@ -365,34 +445,36 @@ cadence/
 │   ├── roast-skeptic/             # Idea Roast Council: Bear case & flaws
 │   ├── roast-investor/            # Idea Roast Council: Unit economics & WTP
 │   └── roast-judge/               # Idea Roast Council: Uncompromising verdict
-├── commands/                      # 12 Direct Slash Commands
+├── commands/                      # 13 Direct Slash Commands
 │   ├── cad-status.md              # Standup & project status
 │   ├── cad-docs.md                # Context-7 MCP live documentation
 │   ├── cad-debug.md               # Scientific root-cause debugging
 │   ├── cad-flow.md                # Red-Green-Refactor TDD loop
+│   ├── cad-oracle.md              # Layered oracle validation
+│   ├── cad-bench.md               # Adaptive two-tier benchmarking
 │   ├── cad-review.md              # Diff audit & PR packaging
-│   ├── cad-bench.md               # Latency & throughput benchmarking
 │   ├── cad-clean.md               # Tech-debt & dead-code janitor
 │   ├── cad-tour.md                # Interactive architecture tour
 │   ├── cad-decide.md              # "Why This, Not That" ADR engine
 │   ├── cad-roast.md               # Commercial idea stress-test
 │   ├── cad-plan.md                # Native UI implementation plan
-│   └── cad-revert.md              # Safe state rollback
-└── skills/                        # 14 Protocol Execution Engines
+│   └── cad-revert.md              # Safe state rollback & experiment archive
+└── skills/                        # 15 Protocol Execution Engines
     ├── cadence-flow/              # TDD Red-Green-Refactor engine
     ├── cadence-plan/              # Native artifact spec engine
+    ├── cadence-oracle/            # Layered oracle validation & tree certification
+    ├── cadence-bench/             # Adaptive two-tier benchmark profiler
+    ├── cadence-revert/            # Safe rollback & experiment archival engine
+    ├── cadence-decide/            # Two-tier ADR governance engine
     ├── cadence-orchestrate/       # Multi-agent concurrent runner
     ├── cadence-docs/              # Context-7 MCP live grounding engine
     ├── cadence-status/            # Zero-disk status engine
     ├── cadence-review/            # Adversarial review protocol
     ├── cadence-debug/             # 5-step scientific autopsy
-    ├── cadence-bench/             # Pre/post benchmark profiler
     ├── cadence-clean/             # Safe janitorial cleaner
     ├── cadence-tour/              # Codebase onboarding tour
-    ├── cadence-decide/            # ADR generation engine
     ├── cadence-roast/             # 4-agent council coordinator
-    ├── cadence-ideate/            # Creative idea sparring partner
-    └── cadence-revert/            # Safe rollback engine
+    └── cadence-ideate/            # Creative idea sparring partner
 ```
 
 ---
