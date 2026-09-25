@@ -46,6 +46,8 @@ Cadence equips your agent with a pre-configured team of specialized subagents:
 
 ## 📦 Bundled Skills
 
+* **`cadence-status`:** Instant project & session status check (replaces `conductor-status` with zero disk bloat).
+* **`cadence-review`:** Principal Engineer audit, test verification, and clean PR/commit packaging (replaces `conductor-review`).
 * **`cadence-decide`:** "Why This, Not That" Architectural Decision Record (ADR) engine that preserves engineering rationale, impresses interviewers, and aligns future agents.
 * **`cadence-roast`:** Convenes the 4-agent Idea Roast Council to stress-test commercial and startup concepts before building.
 * **`cadence-ideate`:** Creative sparring partner for idea capture, ELI5 trade-offs, and visual architecture concepts (great for all projects, including experiments).
@@ -56,8 +58,25 @@ Cadence equips your agent with a pre-configured team of specialized subagents:
 
 ---
 
+## 🔄 Conductor to Cadence Migration Map
+
+| Legacy Conductor Skill | Modern Cadence Equivalent | Why It's 10x Better |
+|---|---|---|
+| `conductor-status` | **`cadence-status`** | Instant git + artifact check; parses zero markdown files on disk. |
+| `conductor-review` | **`cadence-review`** | Principal Engineer diff audit + PR ship package; zero metadata commits. |
+| `conductor-implement`| **`cadence-flow`** & **`cadence-orchestrate`** | Fast Lane vs Team Lane, isolated workspaces, TDD Red-Green. |
+| `conductor-new-track`| **`cadence-plan`** | Native UI Artifact, zero Git repo pollution, interactive. |
+| `conductor-revert`   | **`cadence-revert`** | Atomic git reset + root-cause diagnosis. |
+| `conductor-setup`    | *(Zero-Config)* | Auto-fingerprints package manager, test runner, and linter on Turn 1. |
+
+---
+
 ## 🚀 Quick Usage
 
+* **Where did we leave off? (Session Status):**
+  > "Use cadence-status" or "Where did we leave off?"
+* **Review & ship completed work:**
+  > "Use cadence-review to audit my changes and prep a PR"
 * **To record a critical architecture choice ("Why This, Not That"):**
   > "Use cadence-decide to record our decision to use local SQLite instead of Postgres"
 * **To stress-test an idea before building it (The Idea Roast Council):**
