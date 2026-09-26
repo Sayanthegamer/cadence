@@ -96,134 +96,81 @@ A validation certificate is stored inside `.experiments/certificates/<tree_sha>.
 
 Cadence Oracle resolves this by using an isolated temporary Git index to compute the **Canonical Certified Content Tree**:
 
-```powershell
-function Get-Canonical-Candidate-Tree {
-    param(
-        [string]$RepoRoot = (git rev-parse --show-toplevel),
-        [string[]]$Exclusions = @(".experiments/certificates/**", ".experiments/traces/**")
-    )
-    
-    $rawGitDir = (git -C $RepoRoot rev-parse --git-dir).Trim()
-    $gitDir = if ([System.IO.Path]::IsPathRooted($rawGitDir)) { $rawGitDir } else { Join-Path $RepoRoot $rawGitDir }
-    $primaryIndex = Join-Path $gitDir "index"
-    $tempIndex = Join-Path $gitDir "cadence_cand_index_$([Guid]::NewGuid().ToString('N'))"
-    $origIndexEnv = $env:GIT_INDEX_FILE
-    
-    try {
-        # 1. Snapshot primary index baseline
-        if (Test-Path $primaryIndex) {
-            Copy-Item $primaryIndex $tempIndex
-        } else {
-            New-Item -ItemType File -Path $tempIndex | Out-Null
-        }
-        
-        # 2. Redirect Git plumbing to isolated temporary index
-        $env:GIT_INDEX_FILE = $tempIndex
-        
-        # 3. Synchronize candidate working-tree state into temp index:
-        #    - Tracked modifications: updated
-        #    - New files: added (honoring .gitignore)
-        #    - Deletions: removed
-        #    - Unified staged & unstaged candidate changes
-        git -C $RepoRoot add -A
-        
-        # 4. Explicitly unstage and purge excluded certificate and trace paths
-        foreach ($pattern in $Exclusions) {
-            git -C $RepoRoot rm --cached -r -q --ignore-unmatch $pattern 2>$null
-        }
-        
-        # 5. Write the canonical content tree object
-        $canonicalTreeSha = git -C $RepoRoot write-tree
-        return $canonicalTreeSha
-    }
-    finally {
-        # 6. Restore original environment and delete temporary index
-        $env:GIT_INDEX_FILE = $origIndexEnv
-        if (Test-Path $tempIndex) { Remove-Item -Force $tempIndex }
-    }
-}
+### Standalone Cross-Platform CLI
+```bash
+# Compute canonical tree SHA (Linux, macOS, Windows):
+python scripts/verify_oracle.py --compute-tree
 ```
 
----
+### Plumbing Implementation (Reference)
+* **POSIX (Bash / Linux / macOS):**
+  ```bash
+  get_canonical_candidate_tree() {
+      local repo_root="${1:-$(git rev-parse --show-toplevel)}"
+      local git_dir="$(git -C "$repo_root" rev-parse --git-dir)"
+      local primary_index="$git_dir/index"
+      local temp_index="$git_dir/cadence_cand_index_$$"
+      
+      cp "$primary_index" "$temp_index" 2>/dev/null || touch "$temp_index"
+      GIT_INDEX_FILE="$temp_index" git -C "$repo_root" add -A
+      
+      # Purge excluded certificate and trace paths
+      GIT_INDEX_FILE="$temp_index" git -C "$repo_root" rm --cached -r -q --ignore-unmatch \
+          ".experiments/certificates/**" ".experiments/traces/**" 2>/dev/null || true
+          
+      local canonical_tree_sha="$(GIT_INDEX_FILE="$temp_index" git -C "$repo_root" write-tree)"
+      rm -f "$temp_index"
+      echo "$canonical_tree_sha"
+  }
+  ```
 
-## 3. Pre-Commit Verification Plumbing (`Verify-Canonical-Staged-Tree`)
+* **Windows (PowerShell):**
+  ```powershell
+  function Get-Canonical-Candidate-Tree {
+      param(
+          [string]$RepoRoot = (git rev-parse --show-toplevel),
+          [string[]]$Exclusions = @(".experiments/certificates/**", ".experiments/traces/**")
+      )
+      $rawGitDir = (git -C $RepoRoot rev-parse --git-dir).Trim()
+      $gitDir = if ([System.IO.Path]::IsPathRooted($rawGitDir)) { $rawGitDir } else { Join-Path $RepoRoot $rawGitDir }
+      $primaryIndex = Join-Path $gitDir "index"
+      $tempIndex = Join-Path $gitDir "cadence_cand_index_$([Guid]::NewGuid().ToString('N'))"
+      $origIndexEnv = $env:GIT_INDEX_FILE
+      try {
+          if (Test-Path $primaryIndex) { Copy-Item $primaryIndex $tempIndex } else { New-Item -ItemType File -Path $tempIndex | Out-Null }
+          $env:GIT_INDEX_FILE = $tempIndex
+          git -C $RepoRoot add -A
+          foreach ($pattern in $Exclusions) {
+              git -C $RepoRoot rm --cached -r -q --ignore-unmatch $pattern 2>$null
+          }
+          return (git -C $RepoRoot write-tree)
+      } finally {
+          $env:GIT_INDEX_FILE = $origIndexEnv
+          if (Test-Path $tempIndex) { Remove-Item -Force $tempIndex }
+      }
+  }
+  ```
 
 ---
 
 ## 3. Pre-Commit Verification Plumbing (`Verify-Oracle-Certification`)
 
-When changes are staged and `git commit` or `cadence-review` executes, verification performs comprehensive multi-vector integrity assertions:
+When changes are staged and `git commit` or `cadence-review` executes, verification performs comprehensive multi-vector integrity assertions (verdict, contract SHA, reference provenance SHA, and Canonical Tree identity).
 
-```powershell
-function Verify-Oracle-Certification {
-    param(
-        [string]$RepoRoot = (git rev-parse --show-toplevel),
-        [string]$CertificatePath
-    )
-    # 1. Certificate Existence Gate
-    if (-not (Test-Path $CertificatePath)) {
-        throw "ERR_CERTIFICATE_NOT_FOUND: Validation certificate not found at $CertificatePath. Run /cad-oracle before committing."
-    }
-    
-    # 2. Certificate Parse & Schema Gate
-    try {
-        $cert = Get-Content $CertificatePath -Raw | ConvertFrom-Json
-    } catch {
-        throw "ERR_CERTIFICATE_MALFORMED: Certificate is corrupted or invalid JSON."
-    }
-    
-    # 3. Verdict Assertion
-    if ($cert.verdict -ne "PASSED") {
-        throw "ERR_CERTIFICATE_VERDICT_FAILED: Candidate certification verdict is '$($cert.verdict)'. Code change is rejected."
-    }
-    
-    # 4. Contract Integrity Check (Prevents contract drift post-certification)
-    $contractPath = Join-Path $RepoRoot $cert.contract_file
-    if (-not (Test-Path $contractPath)) {
-        throw "ERR_CONTRACT_NOT_FOUND: Referenced contract file '$($cert.contract_file)' does not exist."
-    }
-    $currentContractSha = (Get-FileHash -Algorithm SHA256 $contractPath).Hash.ToLower()
-    if ($currentContractSha -ne $cert.contract_sha256) {
-        throw "ERR_CONTRACT_HASH_MISMATCH: Contract was modified after certification. Re-run /cad-oracle to re-certify."
-    }
-    
-    # 5. Reference Provenance Check (Prevents silent reference substitution)
-    $refPath = Join-Path $RepoRoot $cert.reference_provenance.reference_source_file
-    if (-not (Test-Path $refPath)) {
-        throw "ERR_REFERENCE_NOT_FOUND: Referenced reference implementation '$($cert.reference_provenance.reference_source_file)' does not exist."
-    }
-    $currentRefSha = (Get-FileHash -Algorithm SHA256 $refPath).Hash.ToLower()
-    if ($currentRefSha -ne $cert.reference_provenance.reference_source_sha256) {
-        throw "ERR_REFERENCE_PROVENANCE_MISMATCH: Golden reference implementation was modified or substituted. Re-run /cad-oracle."
-    }
-    
-    # 6. Canonical Tree Identity Assertion via Isolated Index
-    $rawGitDir = (git -C $RepoRoot rev-parse --git-dir).Trim()
-    $gitDir = if ([System.IO.Path]::IsPathRooted($rawGitDir)) { $rawGitDir } else { Join-Path $RepoRoot $rawGitDir }
-    $primaryIndex = Join-Path $gitDir "index"
-    $tempIndex = Join-Path $gitDir "cadence_verify_index_$([Guid]::NewGuid().ToString('N'))"
-    $origIndexEnv = $env:GIT_INDEX_FILE
-    
-    try {
-        Copy-Item $primaryIndex $tempIndex
-        $env:GIT_INDEX_FILE = $tempIndex
-        
-        # Filter using the EXACT SAME exclusion pathspecs recorded in the certificate
-        foreach ($pattern in $cert.exclusion_pathspecs) {
-            git -C $RepoRoot rm --cached -r -q --ignore-unmatch $pattern 2>$null
-        }
-        
-        $stagedCanonicalTreeSha = git -C $RepoRoot write-tree
-        if ($stagedCanonicalTreeSha -ne $cert.canonical_tree_sha) {
-            throw "ERR_TREE_MUTATED_POST_CERTIFICATION: Staged content tree ($stagedCanonicalTreeSha) does not match certified tree ($($cert.canonical_tree_sha)). Re-run /cad-oracle before committing."
-        }
-        return $true
-    }
-    finally {
-        $env:GIT_INDEX_FILE = $origIndexEnv
-        if (Test-Path $tempIndex) { Remove-Item -Force $tempIndex }
-    }
-}
+### Standalone Deterministic Verification (CLI / Pre-Commit Hook)
+Execute the cross-platform verification engine:
+```bash
+# Verify currently staged changes against latest certificate:
+python scripts/verify_oracle.py --verify-staged
+
+# Or verify a specific certificate file:
+python scripts/verify_oracle.py --verify-cert .experiments/certificates/<tree_sha>.json
+```
+
+Or install the universal pre-commit hook:
+```bash
+ln -s ../../scripts/pre-commit-hook.sh .git/hooks/pre-commit
+chmod +x .git/hooks/pre-commit
 ```
 
 ---

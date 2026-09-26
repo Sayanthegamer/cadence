@@ -128,22 +128,27 @@ If warmup drift does not satisfy the stability heuristic within budget:
 
 ---
 
-## 5. Capacity Envelope Isolation Architecture & Windows-Native Supervision
+## 5. Capacity Envelope Isolation Architecture & Cross-Platform Watchdog Supervision
 
 Workload sweeps push hardware to physical memory and execution bounds. To ensure benchmark stability:
 
 1. **Process-Isolated Execution Worker:**
-   Every workload point $(N_i)$ executes in an isolated worker subprocess.
-2. **Authoritative Windows-Native Tree Termination:**
+   Every workload point $(N_i)$ executes in an isolated worker subprocess group (`start_new_session=True`).
+2. **Authoritative Cross-Platform Process-Tree Termination:**
    - Worker processes are supervised using monotonic timers.
-   - If execution exceeds $T_{\text{watchdog}}$, the controller executes the authoritative Windows-native command:
-     ```powershell
-     taskkill.exe /F /T /PID $workerPid
-     ```
+   - If execution exceeds $T_{\text{watchdog}}$, the controller terminates the entire worker process tree:
+     - **POSIX (Linux / macOS):**
+       ```bash
+       kill -9 -$workerPgid   # Terminate entire process group
+       ```
+     - **Windows (PowerShell):**
+       ```powershell
+       taskkill.exe /F /T /PID $workerPid
+       ```
      This terminates the worker, child helper processes, compiler threads, and grandchildren without leaving orphaned processes.
 3. **Four Distinct Capacity Envelope Outcomes:**
    The controller traps worker exits and classifies four distinct capacity limits:
-   - **`CAPACITY_LIMIT_TIMEOUT`:** Watchdog monotonic cutoff exceeded; worker tree terminated via `taskkill.exe`.
+   - **`CAPACITY_LIMIT_TIMEOUT`:** Watchdog monotonic cutoff exceeded; worker process tree terminated.
    - **`CAPACITY_LIMIT_OOM`:** Host OS RAM exhaustion (`MemoryError` / `STATUS_NO_MEMORY` `0xC0000017`) or GPU VRAM allocation failure (`torch.cuda.OutOfMemoryError`).
    - **`CAPACITY_LIMIT_DEVICE_LOST`:** GPU hardware or driver TDR crash: Windows `0x887A0006` (`DXGI_ERROR_DEVICE_HUNG`), `0x887A0005` (`DXGI_ERROR_DEVICE_REMOVED`), or Vulkan `VK_ERROR_DEVICE_LOST` (`-4`).
    - **`CAPACITY_LIMIT_WORKER_CRASH`:** Unhandled native access violation (`STATUS_ACCESS_VIOLATION` `0xC0000005`, segmentation fault, or uncaught native assertion).

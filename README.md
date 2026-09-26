@@ -9,11 +9,8 @@
 > *"The Red to Green to Refactor discipline you love from Conductor, evolved into a dual-engine architecture for high-velocity software engineering and rigorous scientific/numerical computing."*
 
 [![Antigravity](https://img.shields.io/badge/Antigravity-2.0-blue.svg)](https://antigravity.google)
-[![Architecture](https://img.shields.io/badge/Architecture-Autonomous_Reflexes-teal.svg)](#-autonomous-operational-reflexes-zero-command-automation)
-[![Testing](https://img.shields.io/badge/Discipline-Strict_TDD-green.svg)](#-the-red-green-refactor-invariant)
-[![Pillars](https://img.shields.io/badge/Scientific_Pillars-4_Engines-purple.svg)](#-the-four-scientific-computing-pillars)
-[![Subagents](https://img.shields.io/badge/Subagents-7_Specialized_Agents-purple.svg)](#-specialized-subagent-fleet)
-[![Context-7 MCP](https://img.shields.io/badge/Context--7_MCP-Integrated-orange.svg)](#-live-documentation-grounding-context-7-mcp-integration)
+[![Claude Code](https://img.shields.io/badge/Claude_Code-Plugin-purple.svg)](https://docs.anthropic.com)
+[![Platforms](https://img.shields.io/badge/Platforms-Linux_%7C_macOS_%7C_Windows-green.svg)](#-installation-guide)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 
 Cadence is a next-generation agentic development plugin engineered natively for modern AI developer environments (**Antigravity 2.0** and **Claude Code**). 
@@ -69,6 +66,42 @@ In scientific computing, floating-point math, and GPU shader programming, classi
 
 ---
 
+## ⚙️ Dual-Layer Architecture: Agent Protocols vs. Deterministic Verification Harness
+
+A common limitation of AI coding frameworks is that rules remain purely aspirational markdown prompts—if the model hallucinates or rationalizes around a test failure, unverified code gets committed.
+
+Cadence addresses this by enforcing an explicit separation of concerns:
+
+```mermaid
+flowchart TD
+    subgraph Layer1 ["Layer 1: Agent Process Protocol (LLM Guidance)"]
+        A["Developer Request"] --> B["cadence-flow / cadence-oracle / cadence-bench"]
+        B --> C["Red-Green-Refactor Invariant"]
+        B --> D["Evidence Dossiers & Two-Tier Human Gates"]
+        B --> E["Native UI Artifact Plans (Zero Git Clutter)"]
+    end
+
+    subgraph Layer2 ["Layer 2: Deterministic Verification Harness (Executable CLI)"]
+        F["scripts/bench_engine.py\n(Bootstrap CI, Type 7 Quantiles, RCIW, Process Isolation)"]
+        G["scripts/verify_oracle.py\n(Isolated Temporary Index GIT_INDEX_FILE, Mutation Detection)"]
+        H["scripts/verify_archival.py\n(Schema Validation, CAS SHA-256 Tamper Verification)"]
+        I[".git/hooks/pre-commit (scripts/pre-commit-hook.sh)\nEnforces Validation in CI/CD & Local Git"]
+    end
+
+    Layer1 -.->|"Executes deterministically"| Layer2
+```
+
+1. **The Agent Process Protocol (Prompt & Subagent Layer):**
+   Markdown instructions, prompt skills, and specialized subagents (`cadence-tester`, `cadence-reviewer`, `cadence-scout`) that structure the model's reasoning loop, enforce Red-Green-Refactor test authoring, compile neutral Evidence Dossiers, and eliminate confirmation bias.
+2. **The Deterministic Verification Harness (Executable CLI Layer):**
+   Platform-agnostic Python engines and Git index plumbing that run independently of any LLM:
+   - **`scripts/bench_engine.py`**: Pure Python statistical profiler implementing Hyndman & Fan Type 7 quantiles, moving-block bootstrap (Politis & Romano), authorized RCIW stopping, and cross-platform process isolation (POSIX process groups / Windows tree termination).
+   - **`scripts/verify_oracle.py`**: Standalone CLI using isolated Git temporary index plumbing (`GIT_INDEX_FILE`) to compute Canonical Tree SHAs, verify reference provenance, and detect post-certification mutations.
+   - **`scripts/verify_archival.py`**: Standalone CLI verifying `.experiments/` JSON schemas and CAS SHA-256 hashes of untracked binary traces.
+   - **`scripts/pre-commit-hook.sh`**: A standard Git pre-commit hook runnable by developers or CI/CD pipelines to block commits that violate certification or CAS integrity outside of the agent.
+
+---
+
 ## ⚡ Conductor vs. Cadence: The Architectural Evolution
 
 | Architectural Vector | Conductor (Legacy) | Cadence (Antigravity 2.0 Native) |
@@ -114,11 +147,11 @@ flowchart TD
         B["cadence-bench (/cad-bench)"] --> Fast["Fast Tier (<= 3s wall-clock)\n> 25% Gross-Change Screening\nDecoupled Direction (REGRESSION/SPEEDUP)"]
         B --> Deep["Deep Tier (10s..45s Adaptive Envelope)\nMoving-Block Bootstrap 95% CI vs MAES\nAuthorized RCIW / Near-Zero MAES Formula"]
         Deep --> Precedence["5-Step Mutually Exclusive Precedence Ladder\n(Optimization, Equivalence, Regression, Inconclusive)"]
-        Deep --> Watchdog["Windows Watchdog Tree Termination\ntaskkill /F /T /PID -> Capacity Envelope Isolation"]
+        Deep --> Watchdog["Process-Tree Watchdog Termination\nPOSIX killpg / Windows taskkill -> Capacity Isolation"]
     end
 ```
 
-### Pillar 1: Two-Tier Architectural Governance ([ADR-0001](file:///C:/Users/Anon/.gemini/config/plugins/cadence/.agents/decisions/ADR-0001-two-tier-architectural-governance.md))
+### Pillar 1: Two-Tier Architectural Governance ([ADR-0001](.agents/decisions/ADR-0001-two-tier-architectural-governance.md))
 Architectural decisions, library choices, and algorithmic changes are governed by material impact across the **8 Material Impact Vectors**:
 1. *Numerical Results or Physical Correctness* (floating-point schemes, integration stability, conservation laws).
 2. *Reproducibility or Determinism* (seed control, PRNG state, reduction order, parallel synchronization).
@@ -133,26 +166,26 @@ Architectural decisions, library choices, and algorithmic changes are governed b
 * **Tier 2 (Tactical / Localized):** Localized, immediately reversible decisions with zero material impact proceed autonomously with an observable 1-line trace: `- [Tactical Decision] <description> (Reversible, zero impact on 8 vectors)`.
 * **The Uncertainty Invariant:** If the agent cannot prove zero material impact with absolute confidence, it **must default to Tier 1** and pause for human review.
 
-### Pillar 2: Scientific Failure Archival ([ADR-0002](file:///C:/Users/Anon/.gemini/config/plugins/cadence/.agents/decisions/ADR-0002-scientific-failure-archival.md))
+### Pillar 2: Scientific Failure Archival ([ADR-0002](.agents/decisions/ADR-0002-scientific-failure-archival.md))
 Cadence avoids both Git branch sprawl and the catastrophic loss of negative experimental knowledge through a **2A + Selective 2B Hybrid Architecture**:
 * **Class A (Ordinary Engineering Defects):** Typos, syntax bugs, or broken tests are rolled back cleanly, leaving zero repository clutter.
-* **Class B (Scientific / Exploratory Failures):** Algorithms that failed due to physical divergence, numerical instability, or poor scaling are preserved in queryable `.experiments/` manifests compliant with [`schemas/experiment-v1.json`](file:///C:/Users/Anon/.gemini/config/plugins/cadence/schemas/experiment-v1.json).
+* **Class B (Scientific / Exploratory Failures):** Algorithms that failed due to physical divergence, numerical instability, or poor scaling are preserved in queryable `.experiments/` manifests compliant with [`schemas/experiment-v1.json`](schemas/experiment-v1.json).
 * **Content-Addressed Storage (CAS):** Untracked large artifacts (logs, profiling dumps, checkpoints) are hashed via SHA-256 and anchored in the metadata record.
 * **Selective Branching:** Git branches (`archive/exp-*`) are created only for high-value codebases worth preserving as full historical worktrees.
 
-### Pillar 3: Layered Oracle Validation ([ADR-0003](file:///C:/Users/Anon/.gemini/config/plugins/cadence/.agents/decisions/ADR-0003-layered-oracle-validation.md))
+### Pillar 3: Layered Oracle Validation ([ADR-0003](.agents/decisions/ADR-0003-layered-oracle-validation.md))
 Before any accelerated or modified kernel can be certified for production, it must pass dual-track validation:
 * **Track A (Differential Testing):** Evaluates candidate output against an immutable Golden Reference across a deterministic PRNG seed matrix, enforcing pointwise and $L_\infty$ limits ($|y_{\text{cand}} - y_{\text{ref}}| \le \text{atol} + \text{rtol} \cdot |y_{\text{ref}}|$). Reference source code is cryptographically bound to prevent silent substitution.
 * **Track B (Domain Invariant Verification):** Verifies physical conservation laws (energy drift, momentum conservation, symplectic geometry, Galilean/rotational symmetries) and guarantees NaN/Inf-free states.
 * **Canonical Certified Content Tree:** The certificate is bound to the exact Git tree SHA computed via an isolated temporary index (`GIT_INDEX_FILE`), guaranteeing self-inclusion immunity (the certificate never invalidates its own recorded tree hash) and instant detection of post-certification code tampering.
 
-### Pillar 4: Adaptive Two-Tier Benchmarking ([ADR-0004](file:///C:/Users/Anon/.gemini/config/plugins/cadence/.agents/decisions/ADR-0004-adaptive-two-tier-benchmarking.md))
+### Pillar 4: Adaptive Two-Tier Benchmarking ([ADR-0004](.agents/decisions/ADR-0004-adaptive-two-tier-benchmarking.md))
 * **Fast Tier (Development Feedback):** Wall-clock execution capped at $\le 3.0\text{s}$. Detects gross shifts ($> 25.000\%$ absolute change) with decoupled signed direction (`SPEEDUP`, `REGRESSION`, `NEUTRAL`). Fast Tier never declares false equivalence or premature victory.
 * **Deep Tier (Production Certification):** Adaptive statistical profiling using moving-block bootstrap (Politis & Romano) with Hyndman & Fan Type 7 quantiles. Computes 95% confidence intervals against a declared Minimum Actionable Effect Size (MAES).
 * **Authorized Precision Stopping (RCIW):** Normal stopping criteria: $\text{RCIW} = \text{CI}_{\text{width}} / |\Delta_{\text{median}}| \le \text{RCIW}_{\text{target}}$. When $|\Delta_{\text{median}}| \to 0$, Cadence autonomously transitions to the authorized scale-independent formulation: $\text{RCIW}_{\text{MAES}} = (\text{CI}_{\text{width}} / 2) / \text{MAES}$.
 * **Enforced Timing Budgets:** Gated minimum observation window ($t \ge T_{\min} = 10.0\text{s}$) prevents premature early exit before thermal/scheduler noise can be observed; iteration-boundary ceiling ($T_{\max} = 45.0\text{s}$) prevents runaway profiling with bounded single-sample overshoot ($\le \Delta t_{\text{sample}}$).
 * **Precedence Ladder:** Enforces a 5-step mutually exclusive evaluation ladder (`ACTIONABLE_OPTIMIZATION`, `PRACTICALLY_EQUIVALENT`, `ACTIONABLE_REGRESSION`, or `INCONCLUSIVE`).
-* **Capacity Envelope & Windows Watchdog:** Staged workload sweeps isolate memory and hardware boundaries. Worker processes run in isolated subprocess trees with Windows-native watchdog supervision (`taskkill.exe /F /T /PID`), accurately categorizing timeouts, OOMs, GPU TDR device resets, and native worker crashes.
+* **Capacity Envelope & Watchdog Supervision:** Staged workload sweeps isolate memory and hardware boundaries. Worker processes run in isolated subprocess trees with cross-platform watchdog supervision (POSIX `os.killpg` process groups / Windows `taskkill.exe /F /T /PID`), accurately categorizing timeouts, OOMs, GPU TDR device resets, and native worker crashes.
 
 ---
 
@@ -208,10 +241,10 @@ When you are planning a **commercial product, startup, paid tool, SaaS, or monet
 * **`roast-believer`:** Makes the strongest, most compelling bull case. Finds the hidden upside, viral hook, and unfair distribution advantage.
 * **`roast-skeptic`:** Attacks every single weak point. Exposes fatal blind spots, high churn risks, and brutal execution traps.
 * **`roast-investor`:** Evaluates unit economics, CAC/LTV feasibility, enterprise procurement hurdles, and willingness to pay (WTP).
-* **`roast-judge`:** Synthesizes the arguments and delivers an uncompromising final ruling:
-  * 🟢 **BUILD:** Rock-solid proposition, cleared for execution.
-  * 🟡 🏗️ **FIX FIRST:** Fatal flaw identified; must resolve prerequisite before writing code.
-  * 🔴 🚜 **KILL:** Fundamentally unviable; pivot or abandon immediately.
+* **`roast-judge`:** Synthesizes the arguments and delivers the council's verdict:
+  * 🟢 **BUILD:** Validated proposition; cleared for execution.
+  * 🟡 🏗️ **FIX FIRST:** Prerequisite flaw identified; resolve bottleneck before writing code.
+  * 🔴 🚜 **KILL:** Fundamentally unviable; pivot or abandon.
 
 ---
 
@@ -303,15 +336,15 @@ Cadence registers 13 native slash commands directly into your chat autocomplete 
 Cadence standardizes all scientific records and governance contracts with versioned, machine-readable JSON schemas and ratified ADRs:
 
 ### Ratified ADRs (`.agents/decisions/`)
-* **[ADR-0001](file:///C:/Users/Anon/.gemini/config/plugins/cadence/.agents/decisions/ADR-0001-two-tier-architectural-governance.md):** Two-Tier Architectural Governance & The 8 Material Impact Vectors
-* **[ADR-0002](file:///C:/Users/Anon/.gemini/config/plugins/cadence/.agents/decisions/ADR-0002-scientific-failure-archival.md):** Scientific Failure Archival (2A + Selective 2B Hybrid Architecture)
-* **[ADR-0003](file:///C:/Users/Anon/.gemini/config/plugins/cadence/.agents/decisions/ADR-0003-layered-oracle-validation.md):** Layered Oracle Validation & Canonical Certified Content Tree
-* **[ADR-0004](file:///C:/Users/Anon/.gemini/config/plugins/cadence/.agents/decisions/ADR-0004-adaptive-two-tier-benchmarking.md):** Adaptive Two-Tier Benchmarking: Precision Formulations, Gross-Change Semantics & Timing Contracts
+* **[ADR-0001](.agents/decisions/ADR-0001-two-tier-architectural-governance.md):** Two-Tier Architectural Governance & The 8 Material Impact Vectors
+* **[ADR-0002](.agents/decisions/ADR-0002-scientific-failure-archival.md):** Scientific Failure Archival (2A + Selective 2B Hybrid Architecture)
+* **[ADR-0003](.agents/decisions/ADR-0003-layered-oracle-validation.md):** Layered Oracle Validation & Canonical Certified Content Tree
+* **[ADR-0004](.agents/decisions/ADR-0004-adaptive-two-tier-benchmarking.md):** Adaptive Two-Tier Benchmarking: Precision Formulations, Gross-Change Semantics & Timing Contracts
 
 ### Standardized Schemas (`schemas/`)
-* **[`schemas/experiment-v1.json`](file:///C:/Users/Anon/.gemini/config/plugins/cadence/schemas/experiment-v1.json):** Schema for Class B scientific failure metadata and CAS SHA-256 trace anchoring.
-* **[`schemas/validation-certificate-v1.json`](file:///C:/Users/Anon/.gemini/config/plugins/cadence/schemas/validation-certificate-v1.json):** Cryptographically bound certificate for Track A/B validation, Canonical Tree SHA, and golden reference provenance.
-* **[`schemas/benchmark-report-v1.json`](file:///C:/Users/Anon/.gemini/config/plugins/cadence/schemas/benchmark-report-v1.json):** Schema for Fast Tier screening and Deep Tier adaptive statistical profiling reports.
+* **[`schemas/experiment-v1.json`](schemas/experiment-v1.json):** Schema for Class B scientific failure metadata and CAS SHA-256 trace anchoring.
+* **[`schemas/validation-certificate-v1.json`](schemas/validation-certificate-v1.json):** Cryptographically bound certificate for Track A/B validation, Canonical Tree SHA, and golden reference provenance.
+* **[`schemas/benchmark-report-v1.json`](schemas/benchmark-report-v1.json):** Schema for Fast Tier screening and Deep Tier adaptive statistical profiling reports.
 
 ---
 
@@ -381,11 +414,11 @@ To safely remove Cadence:
 
 ---
 
-## 🛡️ The Anti-Hallucination Gauntlet
+## 🛡️ Empirical Verification Protocol
 
-The greatest failure mode of modern LLM coding agents is **premature victory declaration**: claiming a bug is fixed or a feature is built without empirical proof, or hallucinating passing tests.
+A primary failure mode of LLM coding agents is **premature completion**: assuming code works without execution, or accepting unverified test passes.
 
-Cadence solves this through an unyielding three-layer defense:
+Cadence mitigates this with a strict three-phase verification cycle:
 
 ```mermaid
 flowchart LR
@@ -505,6 +538,11 @@ cadence/
 ├── plugin.json                    # Plugin metadata and descriptor
 ├── rules/
 │   └── AGENTS.md                  # Autonomous operational directives & TDD invariant
+├── scripts/                       # Deterministic Verification & Benchmarking CLIs (Cross-Platform)
+│   ├── bench_engine.py            # Adaptive two-tier statistical benchmark profiler
+│   ├── verify_oracle.py           # Canonical tree computation & certificate verification CLI
+│   ├── verify_archival.py         # Experiment schema & CAS SHA-256 integrity verification CLI
+│   └── pre-commit-hook.sh         # Universal Git pre-commit hook for local & CI enforcement
 ├── .agents/
 │   └── decisions/                 # Ratified Architectural Decision Records (ADRs)
 │       ├── README.md              # ADR Index

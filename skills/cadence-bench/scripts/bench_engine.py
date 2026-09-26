@@ -23,6 +23,7 @@ import json
 import math
 import os
 import random
+import signal
 import subprocess
 import sys
 import time
@@ -530,24 +531,43 @@ def evaluate_warmup_stream(
 
 
 # ==============================================================================
-# 6. Windows-Native Worker Tree Termination & Capacity Isolation
+# 6. Cross-Platform Worker Tree Termination & Capacity Isolation
 # ==============================================================================
 
-def terminate_process_tree_windows(pid: int) -> bool:
+def terminate_process_tree(pid: int) -> bool:
     """
-    Authoritative Windows-native process tree termination mechanism.
-    Executes 'taskkill.exe /F /T /PID <pid>' to terminate the worker and all child/grandchild processes.
+    Authoritative cross-platform process tree termination mechanism.
+    - Windows: Executes 'taskkill.exe /F /T /PID <pid>' to terminate worker and all child processes.
+    - POSIX (Linux/macOS): Sends SIGKILL to the process group via os.killpg(os.getpgid(pid), signal.SIGKILL).
     """
-    try:
-        res = subprocess.run(
-            ["taskkill.exe", "/F", "/T", "/PID", str(pid)],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            check=False,
-        )
-        return res.returncode == 0
-    except Exception:
-        return False
+    if sys.platform == "win32":
+        try:
+            res = subprocess.run(
+                ["taskkill.exe", "/F", "/T", "/PID", str(pid)],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                check=False,
+            )
+            return res.returncode == 0
+        except Exception:
+            return False
+    else:
+        try:
+            pgid = os.getpgid(pid)
+            os.killpg(pgid, signal.SIGKILL)
+            return True
+        except ProcessLookupError:
+            return True
+        except Exception:
+            try:
+                os.kill(pid, signal.SIGKILL)
+                return True
+            except Exception:
+                return False
+
+
+# Backward compatibility alias
+terminate_process_tree_windows = terminate_process_tree
 
 
 def run_isolated_worker_execution(
@@ -556,7 +576,7 @@ def run_isolated_worker_execution(
 ) -> Dict[str, Any]:
     """
     Supervise an isolated benchmark worker process.
-    Uses monotonic timer and authoritative Windows-native tree termination.
+    Uses monotonic timer and authoritative cross-platform tree termination.
     Maps outcomes strictly to:
     - CAPACITY_LIMIT_TIMEOUT
     - CAPACITY_LIMIT_OOM
@@ -564,11 +584,17 @@ def run_isolated_worker_execution(
     - CAPACITY_LIMIT_WORKER_CRASH
     - PASSED
     """
+    popen_kwargs: Dict[str, Any] = {
+        "stdout": subprocess.PIPE,
+        "stderr": subprocess.PIPE,
+        "text": True,
+    }
+    if sys.platform != "win32":
+        popen_kwargs["start_new_session"] = True
+
     proc = subprocess.Popen(
         worker_cmd,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
+        **popen_kwargs,
     )
 
     t0 = time.perf_counter()
@@ -580,7 +606,7 @@ def run_isolated_worker_execution(
             break
         elapsed = time.perf_counter() - t0
         if elapsed >= timeout_sec:
-            terminate_process_tree_windows(proc.pid)
+            terminate_process_tree(proc.pid)
             terminated_by_watchdog = True
             break
         time.sleep(0.02)
@@ -593,7 +619,7 @@ def run_isolated_worker_execution(
         return {
             "outcome": "CAPACITY_LIMIT_TIMEOUT",
             "exit_code": exit_code,
-            "diagnostic": "Watchdog monotonic timeout exceeded. Worker tree terminated via taskkill.",
+            "diagnostic": "Watchdog monotonic timeout exceeded. Worker process tree terminated.",
             "stdout": stdout_str,
         }
 

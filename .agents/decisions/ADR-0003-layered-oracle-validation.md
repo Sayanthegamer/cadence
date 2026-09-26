@@ -45,7 +45,7 @@ Cadence adopts a layered dual-track validation engine (`cadence-oracle` / `/cad-
      - The canonical tree SHA (`git write-tree`) is computed from this clean index, ensuring tamper-evident identity.
 
 4. **Cryptographically Bound Validation Certificates:**
-   - On successful validation, a certificate conforming to [`schemas/validation-certificate-v1.json`](file:///C:/Users/Anon/.gemini/config/plugins/cadence/schemas/validation-certificate-v1.json) is minted.
+   - On successful validation, a certificate conforming to [`schemas/validation-certificate-v1.json`](../../schemas/validation-certificate-v1.json) is minted.
    - The certificate binds the Canonical Tree SHA, Golden Reference provenance, exact tolerance budget (`atol`, `rtol`, $L_\infty$), seed matrix, and environment metadata.
    - Any post-certification mutation to production code immediately changes the canonical staged tree, causing verification to fail.
 

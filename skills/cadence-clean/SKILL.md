@@ -50,8 +50,9 @@ Probe the codebase for non-functional clutter:
 1. Re-execute the complete test suite.
 2. **The Auto-Rollback Safety Hatch:**
    - If **any** test fails or any behavior changes unexpectedly, execute an immediate rollback:
-     ```powershell
+     ```bash
      git restore .
+     git clean -fd
      ```
    - No broken cleanups are ever permitted to survive.
 

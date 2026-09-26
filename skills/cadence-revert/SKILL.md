@@ -56,7 +56,7 @@ When archiving a Class B failure into `.experiments/<YYYY-MM-DD>_<slug>/`:
 
 1. **Tracked Core Files:**
    - **`patch.diff`:** Complete unified diff of candidate changes against base commit:
-     ```powershell
+     ```bash
      git diff HEAD > .experiments/<id>/patch.diff
      ```
    - **`parameters.yaml`:** Physical and computational hyperparameter snapshot:
@@ -130,18 +130,28 @@ When archiving a Class B failure into `.experiments/<YYYY-MM-DD>_<slug>/`:
 
 3. **Content-Addressed Storage (CAS) Hash Anchoring:**
    - Large raw artifacts (residual CSVs, Nsight profiles, memory dumps) are written to `.experiments/traces/` (which is included in `.gitignore`).
-   - For every untracked artifact, compute its SHA-256 hash and exact byte size:
-     ```powershell
-     $hash = (Get-FileHash -Algorithm SHA256 $tracePath).Hash.ToLower()
-     $size = (Get-Item $tracePath).Length
-     ```
+   - For every untracked artifact, compute its SHA-256 hash and byte size:
+     - **POSIX (Linux / macOS):**
+       ```bash
+       sha256sum "$tracePath"
+       wc -c < "$tracePath"
+       ```
+     - **Windows (PowerShell):**
+       ```powershell
+       (Get-FileHash -Algorithm SHA256 $tracePath).Hash.ToLower()
+       (Get-Item $tracePath).Length
+       ```
+     - **Universal (Python CLI):**
+       ```bash
+       python scripts/verify_archival.py --verify-exp .experiments/<id>.json
+       ```
    - Store these in `metadata.json` under `untracked_artifacts`.
-   - If a trace file is modified, deleted, or corrupted, downstream query tools detect the discrepancy immediately.
+   - If a trace file is modified, deleted, or corrupted, `verify_archival.py` detects the discrepancy immediately.
 
 ### Step 3: Selective Git Branch Creation
 If the failure meets any of the **Value-Based Branching Criteria**:
 1. Commit the candidate state to a dedicated branch:
-   ```powershell
+   ```bash
    git checkout -b experiments/<YYYY-MM-DD>_<slug>
    git add -A
    git commit -m "exp(<subsystem>): record failure <YYYY-MM-DD>_<slug> for interactive debugging"
@@ -153,11 +163,11 @@ If the criteria are not met, leave `"git_ref": null` and maintain diff-only arch
 
 ### Step 4: Clean Reset
 1. Discard modified tracked files:
-   ```powershell
+   ```bash
    git restore .
    ```
 2. Clean untracked files from the candidate attempt:
-   ```powershell
+   ```bash
    git clean -fd
    ```
 3. Verify working tree is pristine via `git status`.

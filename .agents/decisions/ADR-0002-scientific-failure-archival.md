@@ -26,7 +26,7 @@ A hybrid archival architecture was required to preserve negative scientific know
 Cadence adopts the **2A + Selective 2B Hybrid Architecture**:
 
 1. **Architecture 2A (Machine-Readable Experiment Records & CAS):**
-   - Every scientific failure, benchmark anomaly, or rejected candidate creates a queryable, structured metadata document under `.experiments/<experiment_id>.json` conforming to [`schemas/experiment-v1.json`](file:///C:/Users/Anon/.gemini/config/plugins/cadence/schemas/experiment-v1.json).
+   - Every scientific failure, benchmark anomaly, or rejected candidate creates a queryable, structured metadata document under `.experiments/<experiment_id>.json` conforming to [`schemas/experiment-v1.json`](../../schemas/experiment-v1.json).
    - Untracked artifacts, diagnostic logs, crash dumps, and profiler traces are anchored in Content-Addressed Storage (`.experiments/cas/<sha256>`).
    - Tamper-evident SHA-256 integrity verification guarantees that experimental records cannot be silently modified or corrupted.
 
