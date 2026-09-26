@@ -65,7 +65,7 @@ Cadence 2.0 evolves classic Red-Green-Refactor TDD into a dual-track engineering
 ## [1.0.0] - 2026-09-25
 
 ### Initial Release
-- High-velocity Spec & Red-Green-Refactor TDD workflow for Antigravity 2.0 and Claude Code.
+- High-velocity Spec & Red-Green-Refactor TDD workflow natively for Antigravity 2.0.
 - 15 skills, 7 specialized subagents, and 13 slash commands.
 - Native UI Artifacts (`brain/`) for zero Git repository pollution.
 - Context-7 MCP integration for live documentation and code grounding.

@@ -9,11 +9,10 @@
 > *"The Red to Green to Refactor discipline you love from Conductor, evolved into a dual-engine architecture for high-velocity software engineering and rigorous scientific/numerical computing."*
 
 [![Antigravity](https://img.shields.io/badge/Antigravity-2.0-blue.svg)](https://antigravity.google)
-[![Claude Code](https://img.shields.io/badge/Claude_Code-Plugin-purple.svg)](https://docs.anthropic.com)
 [![Platforms](https://img.shields.io/badge/Platforms-Linux_%7C_macOS_%7C_Windows-green.svg)](#-installation-guide)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 
-Cadence is a next-generation agentic development plugin engineered natively for modern AI developer environments (**Antigravity 2.0** and **Claude Code**). 
+Cadence is a next-generation agentic development plugin engineered natively for the **Antigravity 2.0** environment. 
 
 Cadence takes the single most proven software engineering discipline popularized by Conductor—**strict Test-Driven Development (Red-Green-Refactor)**—and upgrades it with **high-leverage subagent orchestration**, **autonomous operational reflexes**, and **native UI artifacts**, while completely eliminating repository clutter, fragile disk-based state machines, and high context taxes.
 
@@ -261,11 +260,7 @@ Cadence provides first-class support for the **Context-7 MCP Server** to fetch l
 ### 🛠️ How to Install Context-7 MCP (One-Line Setup):
 
 ```bash
-# For Antigravity:
 agy mcp add context7 https://mcp.context7.com/mcp
-
-# For Claude Code:
-claude mcp add context7 https://mcp.context7.com/mcp
 ```
 
 ### How Context-7 Powers the Workflow:
@@ -350,18 +345,16 @@ Cadence standardizes all scientific records and governance contracts with versio
 
 ## 🛠️ Installation Guide
 
-Cadence is packaged as a standard agent plugin. Choose the installation method for your environment below.
+Cadence is packaged natively as an Antigravity plugin. Choose your preferred installation method:
 
-### 1. Antigravity
-
-#### A. End-User Installation
+### 1. End-User Installation
 Install directly from GitHub via the Antigravity CLI:
 
 ```bash
 agy plugins install https://github.com/Sayanthegamer/cadence
 ```
 
-#### B. Developer Installation (Live-Sync Global Link)
+### 2. Developer Installation (Live-Sync Global Link)
 If you want to contribute, modify rules, or develop custom skills, clone the repository locally and create a live-sync link:
 
 1. Clone the repository:
@@ -379,7 +372,7 @@ If you want to contribute, modify rules, or develop custom skills, clone the rep
    New-Item -ItemType SymbolicLink -Path "$HOME\.gemini\config\plugins\cadence" -Target (Get-Location).Path
    ```
 
-#### C. Workspace-Level Isolation
+### 3. Workspace-Level Isolation
 To isolate Cadence strictly inside a single repository:
 
 ```bash
@@ -390,27 +383,13 @@ ln -sfn /path/to/cadence .agents/plugins/cadence
 
 ---
 
-### 2. Claude Code
-
-Register the marketplace repository and install Cadence directly in your active Claude Code session:
-
-```bash
-/plugin marketplace add Sayanthegamer/cadence
-/plugin install cadence
-```
-
----
-
 ### 🔄 Uninstallation
 
 To safely remove Cadence:
 
-* **Antigravity:**
-  * CLI Installation: `agy plugins uninstall cadence`
-  * Global Link: Remove directory or symlink `~/.gemini/config/plugins/cadence`
-  * Workspace Link: Remove `.agents/plugins/cadence`
-* **Claude Code:**
-  * Run `/plugin remove cadence` and `/plugin marketplace remove Sayanthegamer/cadence`
+* **CLI Installation:** `agy plugins uninstall cadence`
+* **Global Link:** Remove directory or symlink `~/.gemini/config/plugins/cadence`
+* **Workspace Link:** Remove `.agents/plugins/cadence`
 
 ---
 
@@ -454,7 +433,7 @@ Cadence natively adapts its user interface to your host environment with zero co
 
 * **Interactive GUI Modals:** In modern IDEs supporting graphical controls (e.g. Antigravity IDE), Cadence uses interactive modals (`ask_question`) for design decisions, plan confirmations, and track options.
 * **Native UI Artifacts:** Plans, architecture tours, and benchmarks are rendered in Antigravity's persistent artifact space (`brain/<conversation-id>`) with clickable file links, live Mermaid diagrams, and expandable slides.
-* **Graceful CLI Fallback:** In pure terminal consoles (Claude Code, SSH sessions), Cadence automatically adapts prompts into numbered bracketed choice menus (e.g. `[1] Option A, [2] Option B`) and clean stdout tables.
+* **Graceful CLI Fallback:** In headless terminal consoles (CLI / SSH sessions), Cadence automatically adapts prompts into numbered bracketed choice menus (e.g. `[1] Option A, [2] Option B`) and clean stdout tables.
 
 ---
 
