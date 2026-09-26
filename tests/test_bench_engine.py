@@ -335,6 +335,13 @@ child.wait()
         term_success = bench_engine.terminate_process_tree(tree_pids["parent_pid"])
         assert term_success, "Process tree termination returned False"
 
+        # On POSIX, proc_tree was spawned by this test process.
+        # Reap it so its PID slot does not linger as a zombie.
+        try:
+            proc_tree.wait(timeout=2.0)
+        except Exception:
+            pass
+
         time.sleep(0.5)
 
         def pid_is_running(pid: int) -> bool:
@@ -350,8 +357,31 @@ child.wait()
             else:
                 try:
                     os.kill(pid, 0)
-                    return True
                 except OSError:
+                    # ESRCH: process does not exist -> definitely dead
+                    return False
+                # If kill(pid, 0) succeeded, it might still be a zombie (state Z)
+                # waiting for init or parent to reap. Treat zombie as not running.
+                try:
+                    with open(f"/proc/{pid}/status", "r") as sf:
+                        for line in sf:
+                            if line.startswith("State:"):
+                                state_char = line.split()[1]
+                                return state_char != "Z"
+                except (FileNotFoundError, PermissionError, IndexError):
+                    pass
+                try:
+                    ps_check = subprocess.run(
+                        ["ps", "-o", "stat=", "-p", str(pid)],
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
+                        text=True,
+                    )
+                    stat = ps_check.stdout.strip()
+                    if not stat or stat.startswith("Z"):
+                        return False
+                    return True
+                except Exception:
                     return False
 
         parent_alive = pid_is_running(tree_pids["parent_pid"])

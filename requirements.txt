@@ -1,0 +1,2 @@
+# Test and Validation Dependencies for Cadence
+jsonschema>=4.0.0

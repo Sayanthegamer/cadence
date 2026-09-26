@@ -536,6 +536,7 @@ Migrating from Conductor to Cadence requires zero breaking changes to your code.
 cadence/
 ├── README.md                      # Complete Developer & Architecture Manual
 ├── plugin.json                    # Plugin metadata and descriptor
+├── requirements.txt               # Test and validation harness dependencies
 ├── rules/
 │   └── AGENTS.md                  # Autonomous operational directives & TDD invariant
 ├── scripts/                       # Deterministic Verification & Benchmarking CLIs (Cross-Platform)
@@ -543,6 +544,10 @@ cadence/
 │   ├── verify_oracle.py           # Canonical tree computation & certificate verification CLI
 │   ├── verify_archival.py         # Experiment schema & CAS SHA-256 integrity verification CLI
 │   └── pre-commit-hook.sh         # Universal Git pre-commit hook for local & CI enforcement
+├── tests/                         # Reproducible Cross-Platform Test Suites
+│   ├── test_bench_engine.py       # 12-test acceptance suite for bench_engine.py
+│   ├── test_timing_contracts.py   # Fast Tier & Deep Tier timing contracts & JSON schemas
+│   └── test_master_integration.py # End-to-end multi-pillar integration & regression suite
 ├── .agents/
 │   └── decisions/                 # Ratified Architectural Decision Records (ADRs)
 │       ├── README.md              # ADR Index
@@ -592,6 +597,22 @@ cadence/
     ├── cadence-tour/              # Codebase onboarding tour
     ├── cadence-roast/             # 4-agent council coordinator
     └── cadence-ideate/            # Creative idea sparring partner
+```
+
+---
+
+## 🧪 Running the Test Suite
+
+Cadence includes an in-repo test suite validating all four scientific computing pillars, process isolation, and timing contracts across Linux, macOS, and Windows:
+
+```bash
+# 1. Install test dependencies
+pip install -r requirements.txt
+
+# 2. Run the unit, contract, and integration suites
+python tests/test_bench_engine.py
+python tests/test_timing_contracts.py
+python tests/test_master_integration.py
 ```
 
 ---

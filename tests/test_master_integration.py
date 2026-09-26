@@ -19,7 +19,13 @@ import shutil
 import hashlib
 import tempfile
 import subprocess
-import jsonschema
+try:
+    import jsonschema
+except ImportError:
+    sys.exit(
+        "Error: 'jsonschema' is required to run test_master_integration.py.\n"
+        "Please install requirements with: pip install -r requirements.txt"
+    )
 
 PLUGIN_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(PLUGIN_DIR, "skills", "cadence-bench", "scripts"))

@@ -15,7 +15,13 @@ import sys
 import os
 import time
 import json
-import jsonschema
+try:
+    import jsonschema
+except ImportError:
+    sys.exit(
+        "Error: 'jsonschema' is required to run test_timing_contracts.py.\n"
+        "Please install requirements with: pip install -r requirements.txt"
+    )
 
 # Add plugin to path
 PLUGIN_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
