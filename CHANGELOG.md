@@ -39,9 +39,16 @@ Cadence 2.0 evolves classic Red-Green-Refactor TDD into a dual-track engineering
 - **Capacity Envelope Isolation:** Multi-point workload sweeps identifying largest successful tested size, physical limits, and failure categories (`CAPACITY_LIMIT_OOM`, `DEVICE_LOST`, `TIMEOUT`, `WORKER_CRASH`) strictly segregated from latency statistics.
 - **Cross-Platform Process Watchdog:** Universal process tree termination supporting Windows (`taskkill.exe /F /T /PID`) and POSIX (`os.killpg(os.getpgid(pid), signal.SIGKILL)`), eliminating orphaned workers.
 
+#### 🛠️ Brownfield Project Onboarding & Baseline Health Verification
+- Added `cadence-setup` skill and `/cad-setup` command for importing existing codebases into Cadence.
+- Automated multi-language stack fingerprinting (`pyproject.toml`, `package.json`, `Cargo.toml`, `go.mod`, `CMakeLists.txt`).
+- Pre-flight baseline health checks: executes existing test suites before code modifications to isolate pre-existing defects.
+- Optional automated scaffolding of `.agents/decisions/` (ADR governance) and `.experiments/` (failure archival).
+
 #### ⚙️ Dual-Layer Architecture: Protocol & Executable Verification CLIs
 - Decoupled LLM reasoning protocols from deterministic verification harnesses.
 - Added platform-agnostic CLI utilities:
+  - `scripts/setup_project.py` / `scripts/cadence_setup.py`: Standalone CLI for brownfield stack fingerprinting and baseline health audits.
   - `scripts/bench_engine.py`: Standalone CLI for Fast Tier screening, Deep Tier profiling, and workload sweeps.
   - `scripts/verify_oracle.py` / `scripts/oracle_verify.py`: Standalone CLI for canonical tree computation and oracle certificate verification.
   - `scripts/verify_archival.py` / `scripts/archival_verify.py`: Standalone CLI for experiment schema and CAS SHA-256 integrity verification.
@@ -49,6 +56,7 @@ Cadence 2.0 evolves classic Red-Green-Refactor TDD into a dual-track engineering
 
 #### 🧪 Reproducible Test Suites & Dependency Manifests
 - Added full in-repo test suites in `tests/`:
+  - `tests/test_setup_command.py`: Acceptance suite for brownfield stack fingerprinting, baseline health checks, and pillar scaffolding.
   - `tests/test_bench_engine.py`: 12 acceptance tests covering quantiles, bootstrap, RCIW, boundaries, process isolation, capacity limits, and timing contracts.
   - `tests/test_timing_contracts.py`: Validates Fast Tier wall-clock path and Deep Tier $T_{\min}/T_{\max}$ timing budget contracts.
   - `tests/test_master_integration.py`: End-to-end multi-pillar regression suite and simulated workflow walkthrough.

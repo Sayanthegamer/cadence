@@ -282,10 +282,11 @@ flowchart LR
 
 ## 📦 Comprehensive Skills Catalog
 
-Cadence includes 15 built-in skills covering the entire engineering lifecycle:
+Cadence includes 16 built-in skills covering the entire engineering lifecycle:
 
 | Skill | Category | Primary Purpose | Generated Artifacts |
 |---|---|---|---|
+| **`cadence-setup`** | Onboarding | Brownfield stack fingerprinting, baseline test health audit, and pillar scaffolding. | Setup & Baseline UI Artifact |
 | **`cadence-flow`** | Core TDD | Rapid Red $\to$ Green $\to$ Refactor execution cycle with pre-commit sanitization. | Clean Git Commits |
 | **`cadence-plan`** | Architecture | Creates an interactive implementation plan as a native Antigravity UI Artifact. | UI Artifact (`brain/`) |
 | **`cadence-oracle`** | Scientific | Dual-track differential reference testing and physical invariant verification with canonical tree certification. | Validation Certificate (`.experiments/certificates/`) |
@@ -306,9 +307,10 @@ Cadence includes 15 built-in skills covering the entire engineering lifecycle:
 
 ## ⚡ Slash Commands Reference
 
-Cadence registers 13 native slash commands directly into your chat autocomplete for immediate control:
+Cadence registers 14 native slash commands directly into your chat autocomplete for immediate control:
 
 ```
+/cad-setup    - Onboard brownfield project, verify baseline test health, & scaffold pillars
 /cad-status   - Instant standup & session overview ("Where did we leave off?")
 /cad-docs     - Live library documentation & verified code examples via Context-7 MCP
 /cad-debug    - Scientific root-cause autopsy (repro -> hypotheses -> probes -> cure)
@@ -500,7 +502,7 @@ Migrating from Conductor to Cadence requires zero breaking changes to your code.
 
 | Conductor Command | Cadence Command | What Changes? |
 |---|---|---|
-| `/conductor:conductor-setup` | *(Autonomous)* | Cadence auto-fingerprints stack, linters, and test runners on Turn 1. No setup files needed. |
+| `/conductor:conductor-setup` | `/cad-setup` (or autonomous) | Automated stack fingerprinting, baseline test health audit, & optional pillar scaffolding without boilerplate clutter. |
 | `/conductor:conductor-new-track` | `/cad-plan` | Specs live in native UI Artifacts instead of creating git-tracked `conductor/tracks/...` directories. |
 | `/conductor:conductor-implement` | `/cad-flow` or `/cad-orchestrate` | Strict Red-Green-Refactor enforced via test runner; concurrent subagent execution. |
 | `/conductor:conductor-status` | `/cad-status` | Instant session overview generated directly from Git state and UI artifacts. |
@@ -521,11 +523,13 @@ cadence/
 │   └── AGENTS.md                  # Autonomous operational directives & TDD invariant
 ├── scripts/                       # Deterministic Verification & Benchmarking CLIs (Cross-Platform)
 │   ├── bench_engine.py            # Adaptive two-tier statistical benchmark profiler
+│   ├── setup_project.py           # Brownfield stack fingerprinting & baseline health audit CLI
 │   ├── verify_oracle.py           # Canonical tree computation & certificate verification CLI
 │   ├── verify_archival.py         # Experiment schema & CAS SHA-256 integrity verification CLI
 │   └── pre-commit-hook.sh         # Universal Git pre-commit hook for local & CI enforcement
 ├── tests/                         # Reproducible Cross-Platform Test Suites
 │   ├── test_bench_engine.py       # 12-test acceptance suite for bench_engine.py
+│   ├── test_setup_command.py      # Acceptance suite for brownfield setup & onboarding CLI
 │   ├── test_timing_contracts.py   # Fast Tier & Deep Tier timing contracts & JSON schemas
 │   └── test_master_integration.py # End-to-end multi-pillar integration & regression suite
 ├── .agents/
@@ -547,7 +551,8 @@ cadence/
 │   ├── roast-skeptic/             # Idea Roast Council: Bear case & flaws
 │   ├── roast-investor/            # Idea Roast Council: Unit economics & WTP
 │   └── roast-judge/               # Idea Roast Council: Uncompromising verdict
-├── commands/                      # 13 Direct Slash Commands
+├── commands/                      # 14 Direct Slash Commands
+│   ├── cad-setup.md               # Brownfield project onboarding & baseline verification
 │   ├── cad-status.md              # Standup & project status
 │   ├── cad-docs.md                # Context-7 MCP live documentation
 │   ├── cad-debug.md               # Scientific root-cause debugging
@@ -561,7 +566,8 @@ cadence/
 │   ├── cad-roast.md               # Commercial idea stress-test
 │   ├── cad-plan.md                # Native UI implementation plan
 │   └── cad-revert.md              # Safe state rollback & experiment archive
-└── skills/                        # 15 Protocol Execution Engines
+└── skills/                        # 16 Protocol Execution Engines
+    ├── cadence-setup/             # Brownfield setup & baseline audit engine
     ├── cadence-flow/              # TDD Red-Green-Refactor engine
     ├── cadence-plan/              # Native artifact spec engine
     ├── cadence-oracle/            # Layered oracle validation & tree certification
@@ -591,6 +597,7 @@ pip install -r requirements.txt
 
 # 2. Run the unit, contract, and integration suites
 python tests/test_bench_engine.py
+python tests/test_setup_command.py
 python tests/test_timing_contracts.py
 python tests/test_master_integration.py
 ```
