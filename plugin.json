@@ -1,4 +1,5 @@
 {
   "name": "cadence",
+  "version": "2.0.0",
   "description": "High-velocity Spec & Red-Green-Refactor TDD workflow evolved for scientific computing, physics simulations, GPU kernels, and modern software engineering natively for Antigravity 2.0"
 }

@@ -535,6 +535,7 @@ Migrating from Conductor to Cadence requires zero breaking changes to your code.
 ```
 cadence/
 ├── README.md                      # Complete Developer & Architecture Manual
+├── CHANGELOG.md                   # Full release history and architectural changelog
 ├── plugin.json                    # Plugin metadata and descriptor
 ├── requirements.txt               # Test and validation harness dependencies
 ├── rules/
